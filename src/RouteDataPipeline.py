@@ -173,7 +173,7 @@ class RoutePipeline(object):
         :return: Any necessary join clauses and where clauses to add into the SQL query as strings.
         """
         if not kwargs:
-            return "", ""
+            return "", "where true"
         else:
             joinClause = ""
             whereClause = "where true "
@@ -280,7 +280,7 @@ class RoutePipeline(object):
                 whereClause += f"and (lower(r.Type) like '%boulder%' and lower(r.Type) not like '%trad%') "
 
             if "top rope" in type:
-                whereClause += f"and (lower(r.Type) like '%toprope%') "
+                whereClause += f"and (lower(r.Type) like '%top rope%') "
 
             if "alpine" in type:
                 whereClause += f"and (lower(r.Type) like '%alpine%') "
@@ -608,10 +608,52 @@ class RoutePipeline(object):
 
         if parentAreaName is None:
             query = f"""
-            select r.*
+            select  r.RouteId,
+                    r.AreaId,
+                    r.RouteName,
+                    r.Difficulty_YDS,
+                    r.Difficulty_ADL,
+                    r.Severity,
+                    r.Type,
+                    r.Height,
+                    r.Pitches,
+                    r.Grade,
+                    r.Description,
+                    r.Location,
+                    r.Protection,
+                    r.FirstAscent,
+                    r.FirstAscentYear,
+                    r.FirstFreeAscent,
+                    r.FirstFreeAscentYear,
+                    r.AverageRating,
+                    r.VoteCount,
+                    r.URL,
+                    coalesce(string_agg(c.CommentBody, chr(10)||chr(13)||chr(10)||chr(13)), '') as RouteComments
                 from Routes r
+                left join RouteComments c
+                    on c.RouteId = r.RouteId
                 {joinClause}
-                {whereClause};
+                {whereClause}
+                group by r.RouteId,
+                    r.AreaId,
+                    r.RouteName,
+                    r.Difficulty_YDS,
+                    r.Difficulty_ADL,
+                    r.Severity,
+                    r.Type,
+                    r.Height,
+                    r.Pitches,
+                    r.Grade,
+                    r.Description,
+                    r.Location,
+                    r.Protection,
+                    r.FirstAscent,
+                    r.FirstAscentYear,
+                    r.FirstFreeAscent,
+                    r.FirstFreeAscentYear,
+                    r.AverageRating,
+                    r.VoteCount,
+                    r.URL;
             """
         else:
             query = f"""
@@ -625,18 +667,87 @@ class RoutePipeline(object):
                     inner join SubAreas s
                         on s.AreaId = a.ParentAreaId
             )
-            select r.*
+            select  r.RouteId,
+                    r.AreaId,
+                    r.RouteName,
+                    r.Difficulty_YDS,
+                    r.Difficulty_ADL,
+                    r.Severity,
+                    r.Type,
+                    r.Height,
+                    r.Pitches,
+                    r.Grade,
+                    r.Description,
+                    r.Location,
+                    r.Protection,
+                    r.FirstAscent,
+                    r.FirstAscentYear,
+                    r.FirstFreeAscent,
+                    r.FirstFreeAscentYear,
+                    r.AverageRating,
+                    r.VoteCount,
+                    r.URL,
+                    coalesce(string_agg(c.CommentBody, chr(10)||chr(13)||chr(10)||chr(13)), '') as RouteComments
                 from Routes r
                 inner join SubAreas s
                     on s.AreaId = r.AreaId
+                left join RouteComments c
+                    on c.RouteId = r.RouteId
                 {joinClause}
-                {whereClause};
+                {whereClause}
+                group by r.RouteId,
+                    r.AreaId,
+                    r.RouteName,
+                    r.Difficulty_YDS,
+                    r.Difficulty_ADL,
+                    r.Severity,
+                    r.Type,
+                    r.Height,
+                    r.Pitches,
+                    r.Grade,
+                    r.Description,
+                    r.Location,
+                    r.Protection,
+                    r.FirstAscent,
+                    r.FirstAscentYear,
+                    r.FirstFreeAscent,
+                    r.FirstFreeAscentYear,
+                    r.AverageRating,
+                    r.VoteCount,
+                    r.URL;
             """
-
         print(query)
+
         self.cursor.execute(query)
 
-        return self.cursor.fetchall()
+        results = self.cursor.fetchall()
+
+        fields = [
+            "RouteId",
+            "AreaId",
+            "RouteName",
+            "Difficulty_YDS",
+            "Difficulty_ADL",
+            "Severity",
+            "Type",
+            "Height",
+            "Pitches",
+            "Grade",
+            "Description",
+            "Location",
+            "Protection",
+            "FirstAscent",
+            "FirstAscentYear",
+            "FirstFreeAscent",
+            "FirstFreeAscentYear",
+            "AverageRating",
+            "VoteCount",
+            "URL",
+            "Comments"
+        ]
+        fieldCount = len(fields)
+
+        return [{fields[idx] : record[idx] for idx in range(fieldCount)} for record in results]
 
 
 if __name__ == "__main__":
@@ -658,18 +769,18 @@ if __name__ == "__main__":
         severityThreshold="PG13",
         routeDifficultyLow="5.5",
         routeDifficultyHigh="5.8",
-        type="Sport",
+        type="Top Rope",
         elevation="8000+"
     )
 
-    print(routes)
-
-    # for route in routes:
-    #     print(route[2])
-    #     print(" Difficulty:", route[3], route[5])
-    #     print(" Type:", route[7])
-    #     print(" Height:", f"{route[8]}{route[9]}")
-    #     print(" Pithces:", route[10] or 1)
-    #     print(" Severity:", route[6])
-    #     print(" URL:", route[-1])
-    #     print()
+    for route in routes:
+        print(route["RouteName"])
+        print(" Difficulty:", route["Difficulty_YDS"], route["Difficulty_ADL"])
+        print(" Type:", route["Type"])
+        print(" Height:", f"{route['Height']}ft" if route["Height"] is not None else "Not specified")
+        print(" Pithces:", route["Pitches"] or 1)
+        print(" Severity:", route["Severity"])
+        print(" URL:", route["URL"])
+        # print(" Description:", route["Description"])
+        # print(" Comments:", route["Comments"])
+        print()
