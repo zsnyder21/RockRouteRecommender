@@ -117,12 +117,95 @@ class RoutePipeline(object):
         if not kwargs:
             return "", ""
         else:
-            distanceJoinClause = ""
+            joinClause = ""
             whereClause = "where true "
 
         kwargs = {key.lower(): value for key, value in kwargs.items()}
 
         keys = kwargs.keys()
+
+        if any(keyword in keys for keyword in {"routedifficultylow", "routedifficultyhigh"}):
+            routeDifficultyLow = kwargs["routedifficultylow"] if "routedifficultylow" in keys else None
+            routeDifficultyHigh = kwargs["routedifficultyhigh"] if "routedifficultyhigh" in keys else None
+            routeDifficultyPattern = (routeDifficultyLow or routeDifficultyHigh).upper()
+
+            # Determine what types of routes we are looking for difficulty on
+            if re.search(pattern=r"(5\.\d{1,2}|3rd|4th|5th|Easy 5th)", string=routeDifficultyPattern):
+                ratingSystem = "YDS"
+            elif re.search(pattern=r"(V\d{1,2}|V-easy)", string=routeDifficultyPattern):
+                ratingSystem = "V"
+            elif re.search(pattern=r"WI\d{1,2}", string=routeDifficultyPattern):
+                ratingSystem = "WI"
+            elif re.search(pattern=r"AI\d{1,2}", string=routeDifficultyPattern):
+                ratingSystem = "AI"
+            elif re.search(pattern=r"M\d{1,2}", string=routeDifficultyPattern):
+                ratingSystem = "M"
+            elif re.search(pattern=r"Snow".upper(), string=routeDifficultyPattern):
+                ratingSystem = "Snow"
+            elif re.search(pattern=r"A\d", string=routeDifficultyPattern):
+                ratingSystem = "A"
+            elif re.search(pattern=r"C\d", string=routeDifficultyPattern):
+                ratingSystem = "C"
+            else:
+                raise ValueError(f"Could not determine what difficulty metric to use based on input "
+                                 f"{routeDifficultyPattern}.")
+
+            # Fetch numeric values corresponding to the route difficulties passed in
+            if routeDifficultyLow:
+                query = f"""
+                    select DifficultyRanking
+                        from DifficultyReference
+                        where Difficulty = '{routeDifficultyLow}'
+                            and RatingSystem = '{ratingSystem}'
+                """
+            else:
+                query = f"""
+                    select min(DifficultyRanking)
+                        from DifficultyReference
+                        where RatingSystem = '{ratingSystem}'
+                """
+
+            self.cursor.execute(query)
+            difficultyLow = self.cursor.fetchone()[0]
+
+            if routeDifficultyHigh:
+                query = f"""
+                    select DifficultyRanking
+                        from DifficultyReference
+                        where Difficulty = '{routeDifficultyHigh}'
+                            and RatingSystem = '{ratingSystem}'
+                """
+            else:
+                query = f"""
+                    select max(DifficultyRanking)
+                        from DifficultyReference
+                        where RatingSystem = '{ratingSystem}'
+                """
+
+            self.cursor.execute(query)
+            difficultyHigh = self.cursor.fetchone()[0]
+
+            joinClause += f"""
+                left join lateral (
+                    select unnest(string_to_array(coalesce(r.Difficulty_ADL, ''), ' ')) as Difficulty
+                    union all
+                    select r.Difficulty_YDS
+                ) l0
+                    on true
+                left join lateral (
+                    select case when l0.Difficulty = 'Steep' then 'Steep Snow'
+                                when l0.Difficulty = 'Mod.' then 'Mod. Snow'
+                                when l0.Difficulty = 'Easy' then 'Easy Snow'
+                                else l0.Difficulty end as Difficulty
+                ) l
+                    on true
+                inner join DifficultyReference ref
+                    on l.Difficulty = ref.Difficulty
+            """
+
+            whereClause += f"and (ref.DifficultyRanking <= {difficultyHigh}) "
+            whereClause += f"and (ref.DifficultyRanking >= {difficultyLow}) "
+            whereClause += f"and (ref.RatingSystem = '{ratingSystem}') "
 
         if "type" in keys:
             type = kwargs["type"].lower()
@@ -152,6 +235,25 @@ class RoutePipeline(object):
 
             if "mixed" in type:
                 whereClause += f"and (lower(r.Type) like '%mixed%') "
+
+        if "severitythreshold" in keys:
+            severityThreshold = kwargs["severitythreshold"].upper()
+            query = f"""
+                select SeverityRanking
+                    from SeverityReference
+                    where Severity = '{severityThreshold}'
+            """
+
+            self.cursor.execute(query)
+
+            severity = self.cursor.fetchone()[0]
+
+            joinClause += f"""
+                inner join SeverityReference sev
+                    on sev.Severity = coalesce(r.Severity, 'G')
+            """
+
+            whereClause += f"and (sev.SeverityRanking <= {severity}) "
 
         if "height" in keys:
             height = str(kwargs["height"]).lower().strip()
@@ -311,10 +413,10 @@ class RoutePipeline(object):
 
             radius = str(kwargs["radius"]).lower().strip()
 
-            if radius.endswith("-"):
-                greaterThan = False
-            else:
+            if radius.endswith("+"):
                 greaterThan = True
+            else:
+                greaterThan = False
 
             radius = radius.strip("-").strip("+")
 
@@ -327,7 +429,7 @@ class RoutePipeline(object):
             else:
                 earthRadius = 3958.8
 
-            distanceJoinClause += f"""
+            joinClause += f"""
                 inner join Areas a
                     on a.AreaId = r.AreaId
                 left join lateral (
@@ -351,10 +453,39 @@ class RoutePipeline(object):
             else:
                 whereClause += f"and (d.Distance <= {radius}) "
 
-        return distanceJoinClause, whereClause
+        return joinClause, whereClause
+
+    def validateKeywordArgs(self, **kwargs):
+        allowedKeywords = {
+            "parentAreaName",
+            "routeDifficultyLow",
+            "routeDifficultyHigh",
+            "type",
+            "height",
+            "pitches",
+            "grade",
+            "severitythreshold",
+            "averageRating",
+            "voteCount",
+            "city",
+            "state",
+            "latitude",
+            "longitude",
+            "radius",
+            "proximityRoute",
+            "distanceUnits"
+        }
+
+        allowedKeywords = set(map(lambda x: x.lower(), allowedKeywords))
+
+        if any(keyword.lower() not in allowedKeywords for keyword in kwargs.keys()):
+            invalidKeywords = [keyword for keyword in kwargs.keys() if keyword.lower() not in allowedKeywords]
+            raise TypeError(f"Invalid keyword arguments specified for fetchRoutes: {', '.join(invalidKeywords)}.")
 
     def fetchRoutes(self, **kwargs) -> list:
-        distanceJoinClause, whereClause = self.processFilters(**kwargs)
+        self.validateKeywordArgs(**kwargs)
+
+        joinClause, whereClause = self.processFilters(**kwargs)
 
         parentAreaName = kwargs["parentAreaName"] if "parentAreaName" in kwargs.keys() else None
 
@@ -362,7 +493,7 @@ class RoutePipeline(object):
             query = f"""
             select r.*
                 from Routes r
-                {distanceJoinClause}
+                {joinClause}
                 {whereClause};
             """
         else:
@@ -381,10 +512,11 @@ class RoutePipeline(object):
                 from Routes r
                 inner join SubAreas s
                     on s.AreaId = r.AreaId
-                {distanceJoinClause}
+                {joinClause}
                 {whereClause};
             """
 
+        # print(query)
         self.cursor.execute(query)
 
         return self.cursor.fetchall()
@@ -402,6 +534,22 @@ if __name__ == "__main__":
         geopyUsername="zsnyder21"
     )
 
-    routes = pipe.fetchRoutes(radius="0")
-
-    print(len(routes))
+    routes = pipe.fetchRoutes(
+        city="Boulder",
+        state="Colorado",
+        radius=30,
+        severityThreshold="R",
+        routeDifficultyLow="M1",
+        routeDifficultyHigh="M2",
+        type="Mixed"
+    )
+    print(routes[0])
+    for route in routes:
+        print(route[2])
+        print(" Difficulty:", route[3], route[5])
+        print(" Type:", route[7])
+        print(" Height:", f"{route[8]}{route[9]}")
+        print(" Pithces:", route[10] or 1)
+        print(" Severity:", route[6])
+        print(" URL:", route[-1])
+        print()
