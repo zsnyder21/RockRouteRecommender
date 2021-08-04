@@ -122,17 +122,82 @@ class RoutePipeline(object):
             raise ValueError(f"Error: Cannot parse RouteId from specified URL ({routeURL}).")
 
         query = f"""
-        select  a.Latitude,
-                a.Longitude,
-                r.*
+        select  r.RouteId,
+                r.AreaId,
+                r.RouteName,
+                r.Difficulty_YDS,
+                r.Difficulty_ADL,
+                r.Severity,
+                r.Type,
+                r.Height,
+                r.Pitches,
+                r.Grade,
+                r.Description,
+                r.Location,
+                r.Protection,
+                r.FirstAscent,
+                r.FirstAscentYear,
+                r.FirstFreeAscent,
+                r.FirstFreeAscentYear,
+                r.AverageRating,
+                r.VoteCount,
+                r.URL,
+                coalesce(string_agg(c.CommentBody, chr(10)||chr(13)||chr(10)||chr(13)), '') as RouteComments
             from Routes r
-            inner join Areas a
-                on a.AreaId = r.AreaId
+            left join RouteComments c
+                on c.RouteId = r.RouteId
             where r.RouteId = {routeId}
+            group by r.RouteId,
+                r.AreaId,
+                r.RouteName,
+                r.Difficulty_YDS,
+                r.Difficulty_ADL,
+                r.Severity,
+                r.Type,
+                r.Height,
+                r.Pitches,
+                r.Grade,
+                r.Description,
+                r.Location,
+                r.Protection,
+                r.FirstAscent,
+                r.FirstAscentYear,
+                r.FirstFreeAscent,
+                r.FirstFreeAscentYear,
+                r.AverageRating,
+                r.VoteCount,
+                r.URL;
         """
 
         self.cursor.execute(query)
-        return self.cursor.fetchone()
+        results = self.cursor.fetchone()
+
+        fields = [
+            "RouteId",
+            "AreaId",
+            "RouteName",
+            "Difficulty_YDS",
+            "Difficulty_ADL",
+            "Severity",
+            "Type",
+            "Height",
+            "Pitches",
+            "Grade",
+            "Description",
+            "Location",
+            "Protection",
+            "FirstAscent",
+            "FirstAscentYear",
+            "FirstFreeAscent",
+            "FirstFreeAscentYear",
+            "AverageRating",
+            "VoteCount",
+            "URL",
+            "Comments"
+        ]
+        fieldCount = len(fields)
+
+        return {fields[idx]: results[idx] for idx in range(fieldCount)}
 
     def fetchRoutesByArea(self, areaName: str) -> list:
         """
@@ -770,17 +835,21 @@ if __name__ == "__main__":
         routeDifficultyLow="5.5",
         routeDifficultyHigh="5.8",
         type="Top Rope",
-        elevation="8000+"
+        elevation="5000+",
+        parentAreaName="Eldorado Canyon SP"
     )
 
-    for route in routes:
-        print(route["RouteName"])
-        print(" Difficulty:", route["Difficulty_YDS"], route["Difficulty_ADL"])
-        print(" Type:", route["Type"])
-        print(" Height:", f"{route['Height']}ft" if route["Height"] is not None else "Not specified")
-        print(" Pithces:", route["Pitches"] or 1)
-        print(" Severity:", route["Severity"])
-        print(" URL:", route["URL"])
-        # print(" Description:", route["Description"])
-        # print(" Comments:", route["Comments"])
-        print()
+    route = pipe.fetchRouteByURL(routeURL="https://www.mountainproject.com/route/105924807/the-nose")
+    print(route)
+
+    # for route in routes:
+    #     print(route["RouteName"])
+    #     print(" Difficulty:", route["Difficulty_YDS"], route["Difficulty_ADL"])
+    #     print(" Type:", route["Type"])
+    #     print(" Height:", f"{route['Height']}ft" if route["Height"] is not None else "Not specified")
+    #     print(" Pithces:", route["Pitches"] or 1)
+    #     print(" Severity:", route["Severity"])
+    #     print(" URL:", route["URL"])
+    #     # print(" Description:", route["Description"])
+    #     # print(" Comments:", route["Comments"])
+    #     print()
