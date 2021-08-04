@@ -7,7 +7,20 @@ from dotenv import load_dotenv
 
 
 class RoutePipeline(object):
-    def __init__(self, username: str, password: str, host: str, port: str, database: str, geopyUsername: str):
+    """
+    This class serves as a concise object allowing us to filter routes
+    from the MountainProject database in complex and useful ways
+    """
+    def __init__(self, username: str, password: str, host: str, port: str, database: str, geopyUsername: str) -> None:
+        """
+
+        :param username: PostgreSQL username
+        :param password: PostgreSQL password
+        :param host: PostgreSQL host
+        :param port: PostgreSQL port
+        :param database: PostgreSQL database
+        :param geopyUsername: geopy user_agent
+        """
         self.connection = psycopg2.connect(
             user=username,
             password=password,
@@ -19,12 +32,26 @@ class RoutePipeline(object):
 
         self.geoAgent = geocoders.Nominatim(user_agent="zsnyder21")
 
-    def __del__(self):
+    def __del__(self) -> None:
+        """
+        Clean up the PostgreSQL connection
+
+        :return: None
+        """
         self.cursor.close()
         self.connection.close()
 
 
     def fetchRoutesByLatLong(self, latitude: float, longitude: str, maximumDistance: float, distanceUnits: str = "mi") -> list:
+        """
+        Fetch routes within a specified distance of a supplied latitude and longitude
+
+        :param latitude: Latitude
+        :param longitude: Longitude
+        :param maximumDistance: Maximum distance
+        :param distanceUnits: Units to user (mi, miles, km, kilometers)
+        :return: List of routes within the specified distance of the specified latitude/longitude
+        """
         if distanceUnits.lower() not in {"mi", "miles", "km", "kilometers"}:
             raise ValueError("distanceUnits must be on of the following: ['mi', 'miles', 'km', 'kilometers'].")
 
@@ -53,6 +80,15 @@ class RoutePipeline(object):
         return self.cursor.fetchall()
 
     def fetchRoutesByCityState(self, city: str, state: str, maximumDistance: float, distanceUnits: str = "mi") -> list:
+        """
+        Fetch routes within a specified distance of a specified city and state
+
+        :param city: City
+        :param state: State
+        :param maximumDistance: Maximum distance
+        :param distanceUnits: Units to user (mi, miles, km, kilometers)
+        :return: List of routes within the specified distance of the specified city/state
+        """
         if distanceUnits.lower() not in {"mi", "miles", "km", "kilometers"}:
             raise ValueError("distanceUnits must be on of the following: ['mi', 'miles', 'km', 'kilometers'].")
 
@@ -72,6 +108,12 @@ class RoutePipeline(object):
         )
 
     def fetchRouteByURL(self, routeURL: str) -> tuple:
+        """
+        Fetch route information by specified URL
+
+        :param routeURL: URL of the route to fetch
+        :return: Route information of the specified route
+        """
         routeId = re.search(pattern=r"\d+", string=routeURL)
 
         if routeId is not None:
@@ -93,6 +135,12 @@ class RoutePipeline(object):
         return self.cursor.fetchone()
 
     def fetchRoutesByArea(self, areaName: str) -> list:
+        """
+        Fetch all routes that live underneath a given area
+
+        :param areaName: Name of the area to find routes under
+        :return: List of routes that live under the specified area
+        """
         query = f"""
         ; with recursive SubAreas as (
             select AreaId
@@ -113,7 +161,17 @@ class RoutePipeline(object):
         self.cursor.execute(query)
         return self.cursor.fetchall()
 
-    def processFilters(self, **kwargs: dict) -> str:
+    def processFilters(self, **kwargs) -> tuple:
+        """
+        This method builds the necessary join and where clauses to gather
+        all information as specified by the user in keyword arguments. Note
+        that any parameter can be omitted to avoid filtering on it. Some
+        parameters are required combinations, such as city/state, or
+        latitude/longitude.
+
+        :param kwargs: Keyword arguments to create filters with
+        :return: Any necessary join clauses and where clauses to add into the SQL query as strings.
+        """
         if not kwargs:
             return "", ""
         else:
@@ -358,6 +416,30 @@ class RoutePipeline(object):
             else:
                 whereClause += f"and (r.VoteCount <= {voteCount}) "
 
+        if "elevation" in keys:
+            elevation = str(kwargs["elevation"]).lower().strip()
+            if elevation.endswith("-"):
+                greaterThan = False
+            else:
+                greaterThan = True
+
+            elevation = elevation.strip("-").strip("+")
+
+            try:
+                float(elevation)
+            except ValueError as e:
+                raise ValueError(f"Elevation is not a valid number.")
+
+            joinClause += f"""
+            inner join Areas e
+                on e.AreaId = r.AreaId
+            """
+
+            if greaterThan:
+                whereClause += f"and (e.Elevation >= {elevation}) "
+            else:
+                whereClause += f"and (e.Elevation <= {elevation}) "
+
         if any(keyword in keys for keyword in {"city", "state", "latitude", "longitude", "radius", "proximityroute"}):
             latitude, longitude = None, None
 
@@ -378,13 +460,13 @@ class RoutePipeline(object):
                 latitude = cityStateLocation.raw["lat"]
                 longitude = cityStateLocation.raw["lon"]
 
-            if "latitude" in keys or "longitude" in keys:
+            if latitude is None and ("latitude" in keys or "longitude" in keys):
                 if not all(keyword in keys for keyword in {"latitude", "longitude", "radius"}):
                     raise ValueError("Error: All three of latitude, longitude, and radius must be specified.")
                 latitude = kwargs["latitude"]
                 longitude = kwargs["longitude"]
 
-            if "proximityroute" in keys:
+            if latitude is None and "proximityroute" in keys:
                 if not all(keyword in keys for keyword in {"proximityroute", "radius"}):
                     raise ValueError("Error: Both a proximity route URL and radius must be specified.")
 
@@ -455,7 +537,14 @@ class RoutePipeline(object):
 
         return joinClause, whereClause
 
-    def validateKeywordArgs(self, **kwargs):
+    def validateKeywordArgs(self, **kwargs) -> None:
+        """
+        Validates that only the allowed keyword arguments
+        are passed
+
+        :param kwargs: Keyword arguments
+        :return: None
+        """
         allowedKeywords = {
             "parentAreaName",
             "routeDifficultyLow",
@@ -466,6 +555,7 @@ class RoutePipeline(object):
             "grade",
             "severitythreshold",
             "averageRating",
+            "elevation",
             "voteCount",
             "city",
             "state",
@@ -483,6 +573,33 @@ class RoutePipeline(object):
             raise TypeError(f"Invalid keyword arguments specified for fetchRoutes: {', '.join(invalidKeywords)}.")
 
     def fetchRoutes(self, **kwargs) -> list:
+        """
+        This method builds the necessary join and where clauses to gather
+        all information as specified by the user in keyword arguments. Note
+        that any parameter can be omitted to avoid filtering on it. Some
+        parameters are required combinations, such as city/state, or
+        latitude/longitude.
+
+        :param parentAreaName: Name of area to find routes under
+        :param routeDifficultyLow: Lower bound of route difficulty
+        :param routeDifficultyHigh: Upper bound of route difficulty
+        :param type: Type of route we are filtering for (Trad, Sport, Aid, etc.)
+        :param height: Height to filter on. Append + for >= height, - for <= height.
+        :param pitches: Number of pitches to filter on. Append + for >= height, - for <= height.
+        :param grade: Grade to filter on (given as 1,2,3,4,5,6,7). Append + for >= height, - for <= height.
+        :param severityThreshold: Severity to filter on. This is the maximum severity you will tolerate.
+        :param averageRating: Average rating to filter on. Append + for >= height, - for <= height.
+        :param elevation: Elevation to filter on. Append + for >= height, - for <= height.
+        :param voteCount: Vote count to filter on. Append + for >= height, - for <= height.
+        :param city: City to determine route proximity with. Must be specified with state and radius.
+        :param state: State to determine route proximity with. Must be specified with city and radius.
+        :param latitude: Latitude to determine route proximity with. Must be specified with longitude and radius.
+        :param longitude: Longitude to determine route proximity with. Must be specified with latitude and radius.
+        :param proximityRoute: URL of the route to determine proximity with. Must be specified with radius.
+        :param radius: Radius to used to find routes within. Must be specified with either city/state or latitude/longitude. Append + for >= height, - for <= height.
+        :param distanceUnits: Units to use when determining route proximity. Options are "km", "kilometers", "miles", or "mi".
+        :return: List of routes meeting the filter conditions
+        """
         self.validateKeywordArgs(**kwargs)
 
         joinClause, whereClause = self.processFilters(**kwargs)
@@ -516,7 +633,7 @@ class RoutePipeline(object):
                 {whereClause};
             """
 
-        # print(query)
+        print(query)
         self.cursor.execute(query)
 
         return self.cursor.fetchall()
@@ -538,18 +655,21 @@ if __name__ == "__main__":
         city="Boulder",
         state="Colorado",
         radius=30,
-        severityThreshold="R",
-        routeDifficultyLow="M1",
-        routeDifficultyHigh="M2",
-        type="Mixed"
+        severityThreshold="PG13",
+        routeDifficultyLow="5.5",
+        routeDifficultyHigh="5.8",
+        type="Sport",
+        elevation="8000+"
     )
-    print(routes[0])
-    for route in routes:
-        print(route[2])
-        print(" Difficulty:", route[3], route[5])
-        print(" Type:", route[7])
-        print(" Height:", f"{route[8]}{route[9]}")
-        print(" Pithces:", route[10] or 1)
-        print(" Severity:", route[6])
-        print(" URL:", route[-1])
-        print()
+
+    print(routes)
+
+    # for route in routes:
+    #     print(route[2])
+    #     print(" Difficulty:", route[3], route[5])
+    #     print(" Type:", route[7])
+    #     print(" Height:", f"{route[8]}{route[9]}")
+    #     print(" Pithces:", route[10] or 1)
+    #     print(" Severity:", route[6])
+    #     print(" URL:", route[-1])
+    #     print()
