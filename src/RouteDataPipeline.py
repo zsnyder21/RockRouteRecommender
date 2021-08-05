@@ -114,7 +114,7 @@ class RoutePipeline(object):
         :param routeURL: URL of the route to fetch
         :return: Route information of the specified route
         """
-        routeId = re.search(pattern=r"\d+", string=routeURL)
+        routeId = re.search(pattern=r"\d+", string=str(routeURL))
 
         if routeId is not None:
             routeId = int(routeId.group(0))
@@ -132,9 +132,9 @@ class RoutePipeline(object):
                 r.Height,
                 r.Pitches,
                 r.Grade,
-                r.Description,
+                coalesce(r.Description, '') as Description ,
                 r.Location,
-                r.Protection,
+                coalesce(r.Protection, '') as Protection,
                 r.FirstAscent,
                 r.FirstAscentYear,
                 r.FirstFreeAscent,
@@ -142,7 +142,7 @@ class RoutePipeline(object):
                 r.AverageRating,
                 r.VoteCount,
                 r.URL,
-                coalesce(string_agg(c.CommentBody, chr(10)||chr(13)||chr(10)||chr(13)), '') as RouteComments
+                coalesce(string_agg(c.CommentBody, chr(10)||chr(13)||chr(10)||chr(13)), '') as Comments
             from Routes r
             left join RouteComments c
                 on c.RouteId = r.RouteId
@@ -157,9 +157,9 @@ class RoutePipeline(object):
                 r.Height,
                 r.Pitches,
                 r.Grade,
-                r.Description,
+                coalesce(r.Description, ''),
                 r.Location,
-                r.Protection,
+                coalesce(r.Protection, ''),
                 r.FirstAscent,
                 r.FirstAscentYear,
                 r.FirstFreeAscent,
@@ -171,6 +171,9 @@ class RoutePipeline(object):
 
         self.cursor.execute(query)
         results = self.cursor.fetchone()
+
+        if not results:
+            raise ValueError(f"Could not locate a route matching the URL specified: {routeURL}.")
 
         fields = [
             "RouteId",
@@ -683,7 +686,7 @@ class RoutePipeline(object):
                     r.Height,
                     r.Pitches,
                     r.Grade,
-                    r.Description,
+                    coalesce(r.Description, '') as Description,
                     r.Location,
                     r.Protection,
                     r.FirstAscent,
@@ -693,7 +696,7 @@ class RoutePipeline(object):
                     r.AverageRating,
                     r.VoteCount,
                     r.URL,
-                    coalesce(string_agg(c.CommentBody, chr(10)||chr(13)||chr(10)||chr(13)), '') as RouteComments
+                    coalesce(string_agg(c.CommentBody, chr(10)||chr(13)||chr(10)||chr(13)), '') as Comments
                 from Routes r
                 left join RouteComments c
                     on c.RouteId = r.RouteId
@@ -709,7 +712,7 @@ class RoutePipeline(object):
                     r.Height,
                     r.Pitches,
                     r.Grade,
-                    r.Description,
+                    coalesce(r.Description, ''),
                     r.Location,
                     r.Protection,
                     r.FirstAscent,
@@ -742,9 +745,9 @@ class RoutePipeline(object):
                     r.Height,
                     r.Pitches,
                     r.Grade,
-                    r.Description,
+                    coalesce(r.Description, '') as Description,
                     r.Location,
-                    r.Protection,
+                    coalesce(r.Protection, '') as Protection,
                     r.FirstAscent,
                     r.FirstAscentYear,
                     r.FirstFreeAscent,
@@ -752,7 +755,7 @@ class RoutePipeline(object):
                     r.AverageRating,
                     r.VoteCount,
                     r.URL,
-                    coalesce(string_agg(c.CommentBody, chr(10)||chr(13)||chr(10)||chr(13)), '') as RouteComments
+                    coalesce(string_agg(c.CommentBody, chr(10)||chr(13)||chr(10)||chr(13)), '') as Comments
                 from Routes r
                 inner join SubAreas s
                     on s.AreaId = r.AreaId
@@ -770,9 +773,9 @@ class RoutePipeline(object):
                     r.Height,
                     r.Pitches,
                     r.Grade,
-                    r.Description,
+                    coalesce(r.Description, ''),
                     r.Location,
-                    r.Protection,
+                    coalesce(r.Protection, ''),
                     r.FirstAscent,
                     r.FirstAscentYear,
                     r.FirstFreeAscent,
@@ -781,7 +784,7 @@ class RoutePipeline(object):
                     r.VoteCount,
                     r.URL;
             """
-        print(query)
+        # print(query)
 
         self.cursor.execute(query)
 
@@ -839,8 +842,8 @@ if __name__ == "__main__":
         parentAreaName="Eldorado Canyon SP"
     )
 
-    route = pipe.fetchRouteByURL(routeURL="https://www.mountainproject.com/route/105924807/the-nose")
-    print(route)
+    # route = pipe.fetchRouteByURL(routeURL=r"https://www.mountainproject.com/route/105924807/the-nose")
+    # print(route)
 
     # for route in routes:
     #     print(route["RouteName"])
