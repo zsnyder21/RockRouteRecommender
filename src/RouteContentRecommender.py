@@ -221,6 +221,7 @@ class RouteContentRecommender(object):
             self.routes = pd.DataFrame(self.routesToRecommend)
 
         self.routes["Text"] = self.routes["Description"] + self.routes["Protection"] + self.routes["Comments"]
+
         self.docTermMatrix = self.vectorizer.fit_transform(self.routes["Text"])
 
         self.similarityMatrix = self.similarityMetric(self.docTermMatrix[0], self.docTermMatrix).argsort()
