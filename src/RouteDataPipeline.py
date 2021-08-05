@@ -335,32 +335,41 @@ class RoutePipeline(object):
 
         if "type" in keys:
             type = kwargs["type"].lower()
+            typeWhereClause = "and (false "
+
             if "trad" in type:
-                whereClause += f"and (lower(r.Type) like '%trad%' and lower(r.Type) not like '%aid%' and lower(r.Type) not like '%mixed%' and lower(r.Type) not like '%ice%' and lower(r.Type) not like '%snow%') "
+                typeWhereClause += f"or (lower(r.Type) like '%trad%' and lower(r.Type) not like '%aid%' and lower(r.Type) not like '%mixed%' and lower(r.Type) not like '%ice%' and lower(r.Type) not like '%snow%') "
 
             if "aid" in type:
-                whereClause += f"and (lower(r.Type) like '%aid%') "
+                typeWhereClause += f"or (lower(r.Type) like '%aid%') "
 
             if "sport" in type:
-                whereClause += f"and (lower(r.Type) like '%sport%' and lower(r.Type) not like '{'%trad%' if 'trad' not in type else ''}' and lower(r.Type) not like '%aid%' and lower(r.Type) not like '%mixed%' and lower(r.Type) not like '%ice%' and lower(r.Type) not like '%snow%') "
+                typeWhereClause += f"or (lower(r.Type) like '%sport%' {'and lower(r.Type) not like %trad%' if 'trad' not in type else ''} and lower(r.Type) not like '%aid%' and lower(r.Type) not like '%mixed%' and lower(r.Type) not like '%ice%' and lower(r.Type) not like '%snow%') "
 
             if "boulder" in type:
-                whereClause += f"and (lower(r.Type) like '%boulder%' and lower(r.Type) not like '%trad%') "
+                typeWhereClause += f"or (lower(r.Type) like '%boulder%' and lower(r.Type) not like '%trad%') "
 
             if "top rope" in type:
-                whereClause += f"and (lower(r.Type) like '%top rope%') "
+                typeWhereClause += f"or (lower(r.Type) like '%top rope%') "
 
             if "alpine" in type:
-                whereClause += f"and (lower(r.Type) like '%alpine%') "
+                typeWhereClause += f"or (lower(r.Type) like '%alpine%') "
 
             if "ice" in type:
-                whereClause += f"and (lower(r.Type) like '%ice%') "
+                typeWhereClause += f"or (lower(r.Type) like '%ice%') "
 
             if "snow" in type:
-                whereClause += f"and (lower(r.Type) like '%snow%') "
+                typeWhereClause += f"or (lower(r.Type) like '%snow%') "
 
             if "mixed" in type:
-                whereClause += f"and (lower(r.Type) like '%mixed%') "
+                typeWhereClause += f"or (lower(r.Type) like '%mixed%') "
+
+            if typeWhereClause == "and (false ":
+                raise ValueError("Invalid route type specified. Valid types are Sport, Trad, Aid, Boulder, Top Rope, Alpine, Ice, Snow, and Mixed")
+            else:
+                typeWhereClause += f") "
+
+            whereClause += typeWhereClause
 
         if "severitythreshold" in keys:
             severityThreshold = kwargs["severitythreshold"].upper()
@@ -784,7 +793,7 @@ class RoutePipeline(object):
                     r.VoteCount,
                     r.URL;
             """
-        # print(query)
+        print(query)
 
         self.cursor.execute(query)
 
@@ -831,15 +840,22 @@ if __name__ == "__main__":
     )
 
     routes = pipe.fetchRoutes(
-        city="Boulder",
-        state="Colorado",
-        radius=30,
+        # city="Boulder",
+        # state="Colorado",
+        # radius=30,
+        # severityThreshold="PG13",
+        # routeDifficultyLow="5.5",
+        # routeDifficultyHigh="5.8",
+        # type="Top Rope",
+        # elevation="5000+",
+        # parentAreaName="Eldorado Canyon SP"
         severityThreshold="PG13",
-        routeDifficultyLow="5.5",
-        routeDifficultyHigh="5.8",
-        type="Top Rope",
-        elevation="5000+",
-        parentAreaName="Eldorado Canyon SP"
+        routeDifficultyLow="5.8",
+        routeDifficultyHigh="5.12a",
+        type="Sport, Trad",
+        parentAreaName="Yosemite National Park",
+        # voteCount="20+",
+        # averageRating="3.2+"
     )
 
     # route = pipe.fetchRouteByURL(routeURL=r"https://www.mountainproject.com/route/105924807/the-nose")

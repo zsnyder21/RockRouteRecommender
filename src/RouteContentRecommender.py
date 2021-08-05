@@ -224,7 +224,10 @@ class RouteContentRecommender(object):
 
         self.docTermMatrix = self.vectorizer.fit_transform(self.routes["Text"])
 
-        self.similarityMatrix = self.similarityMetric(self.docTermMatrix[0], self.docTermMatrix).argsort()
+        self.similarityMatrix = self.similarityMetric(self.docTermMatrix[0], self.docTermMatrix)
+        self.routes["SimilarityScore"] = self.similarityMatrix[0, :]
+
+        self.similarityMatrix = self.similarityMatrix.argsort()
 
     def recommendRoutes(self, n: int = 5) -> pd.DataFrame:
         """
@@ -254,21 +257,24 @@ def main():
     )
 
     recommender.fetchRouteToCompare(
-        routeURL=r"https://www.mountainproject.com/route/105862912/serenity-crack"
+        # routeURL=r"https://www.mountainproject.com/route/105862912/serenity-crack"
+        # routeURL=r"https://www.mountainproject.com/route/105748096/aid-crack"
+        routeURL=r"https://www.mountainproject.com/route/105749647/upside-the-cranium"
     )
 
     recommender.fetchRoutesToRecommend(
         severityThreshold="PG13",
         routeDifficultyLow="5.8",
         routeDifficultyHigh="5.12a",
-        type="Trad",
+        type="Sport, Trad",
         parentAreaName="Yosemite National Park",
-        voteCount="20+",
-        averageRating="3.2+"
+        # voteCount="20+",
+        # averageRating="3.2+"
     )
 
     recommendations = recommender.recommendRoutes(n=5)
     print(recommendations["RouteName"])
+    print(recommendations["SimilarityScore"])
 
 
 if __name__ == "__main__":
