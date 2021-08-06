@@ -258,23 +258,24 @@ def main():
 
     recommender.fetchRouteToCompare(
         # routeURL=r"https://www.mountainproject.com/route/105862912/serenity-crack"
+        routeURL=r"https://www.mountainproject.com/route/105991737/freeblast"
         # routeURL=r"https://www.mountainproject.com/route/105748096/aid-crack"
-        routeURL=r"https://www.mountainproject.com/route/105749647/upside-the-cranium"
+        # routeURL=r"https://www.mountainproject.com/route/105749647/upside-the-cranium"
+        # routeURL=r"https://www.mountainproject.com/route/105867013/commitment"
     )
 
     recommender.fetchRoutesToRecommend(
         severityThreshold="PG13",
         routeDifficultyLow="5.8",
         routeDifficultyHigh="5.12a",
-        type="Sport, Trad",
-        parentAreaName="Yosemite National Park",
-        # voteCount="20+",
-        # averageRating="3.2+"
+        type="Trad",
+        parentAreaName="Colorado",
+        voteCount="20+",
+        averageRating="3.0+"
     )
 
     recommendations = recommender.recommendRoutes(n=5)
-    print(recommendations["RouteName"])
-    print(recommendations["SimilarityScore"])
+    print(recommendations[["RouteName", "SimilarityScore"]])
 
 
 if __name__ == "__main__":

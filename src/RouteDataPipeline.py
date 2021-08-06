@@ -681,7 +681,7 @@ class RoutePipeline(object):
 
         joinClause, whereClause = self.processFilters(**kwargs)
 
-        parentAreaName = kwargs["parentAreaName"] if "parentAreaName" in kwargs.keys() else None
+        parentAreaName = kwargs["parentAreaName"] if "parentnreaname" in {key.lower() for key in kwargs.keys()} else None
 
         if parentAreaName is None:
             query = f"""
@@ -793,7 +793,7 @@ class RoutePipeline(object):
                     r.VoteCount,
                     r.URL;
             """
-        print(query)
+        # print(query)
 
         self.cursor.execute(query)
 
@@ -826,6 +826,95 @@ class RoutePipeline(object):
 
         return [{fields[idx] : record[idx] for idx in range(fieldCount)} for record in results]
 
+    def fetchRouteRatings(self, **kwargs) -> list:
+        """
+        This method fetches user ratings of all routes matching the filter
+        conditions passed in by the user
+
+        :param parentAreaName: Name of area to find routes under
+        :param routeDifficultyLow: Lower bound of route difficulty
+        :param routeDifficultyHigh: Upper bound of route difficulty
+        :param type: Type of route we are filtering for (Trad, Sport, Aid, etc.)
+        :param height: Height to filter on. Append + for >= height, - for <= height.
+        :param pitches: Number of pitches to filter on. Append + for >= height, - for <= height.
+        :param grade: Grade to filter on (given as 1,2,3,4,5,6,7). Append + for >= height, - for <= height.
+        :param severityThreshold: Severity to filter on. This is the maximum severity you will tolerate.
+        :param averageRating: Average rating to filter on. Append + for >= height, - for <= height.
+        :param elevation: Elevation to filter on. Append + for >= height, - for <= height.
+        :param voteCount: Vote count to filter on. Append + for >= height, - for <= height.
+        :param city: City to determine route proximity with. Must be specified with state and radius.
+        :param state: State to determine route proximity with. Must be specified with city and radius.
+        :param latitude: Latitude to determine route proximity with. Must be specified with longitude and radius.
+        :param longitude: Longitude to determine route proximity with. Must be specified with latitude and radius.
+        :param proximityRoute: URL of the route to determine proximity with. Must be specified with radius.
+        :param radius: Radius to used to find routes within. Must be specified with either city/state or latitude/longitude. Append + for >= height, - for <= height.
+        :param distanceUnits: Units to use when determining route proximity. Options are "km", "kilometers", "miles", or "mi".
+        :return: List of routes meeting the filter conditions
+        """
+        self.validateKeywordArgs(**kwargs)
+
+        joinClause, whereClause = self.processFilters(**kwargs)
+
+        parentAreaName = kwargs["parentAreaName"] if "parentareaname" in {key.lower() for key in kwargs.keys()} else None
+
+        if parentAreaName is None:
+            query = f"""
+            select  r.RouteId,
+                    rr.UserId,
+                    rr.Rating
+                from Routes r
+                inner join RouteRatings rr
+                    on rr.RouteId = r.RouteId
+                    and rr.UserId is not null
+                {joinClause}
+                {whereClause}
+                group by r.RouteId,
+                    rr.UserId,
+                    rr.Rating
+            """
+        else:
+            query = f"""
+            ; with recursive SubAreas as (
+                select AreaId
+                    from Areas
+                    where AreaName like '%{parentAreaName}%'
+                union all
+                select a.AreaId
+                    from Areas a
+                    inner join SubAreas s
+                        on s.AreaId = a.ParentAreaId
+            )
+            select  r.RouteId,
+                    rr.UserId,
+                    rr.Rating
+                from Routes r
+                inner join SubAreas s
+                    on s.AreaId = r.AreaId
+                inner join RouteRatings rr
+                    on rr.RouteId = r.RouteId
+                    and rr.UserId is not null
+                {joinClause}
+                {whereClause}
+                group by r.RouteId,
+                    rr.UserId,
+                    rr.Rating
+            """
+        print(query)
+
+        self.cursor.execute(query)
+
+        results = self.cursor.fetchall()
+
+        fields = [
+            "RouteId",
+            "UserId",
+            "Rating"
+        ]
+
+        fieldCount = len(fields)
+
+        return [{fields[idx] : record[idx] for idx in range(fieldCount)} for record in results]
+
 
 if __name__ == "__main__":
     load_dotenv()
@@ -839,7 +928,7 @@ if __name__ == "__main__":
         geopyUsername="zsnyder21"
     )
 
-    routes = pipe.fetchRoutes(
+    routes = pipe.fetchRouteRatings(
         # city="Boulder",
         # state="Colorado",
         # radius=30,
@@ -849,7 +938,6 @@ if __name__ == "__main__":
         # type="Top Rope",
         # elevation="5000+",
         # parentAreaName="Eldorado Canyon SP"
-        severityThreshold="PG13",
         routeDifficultyLow="5.8",
         routeDifficultyHigh="5.12a",
         type="Sport, Trad",
@@ -872,3 +960,10 @@ if __name__ == "__main__":
     #     # print(" Description:", route["Description"])
     #     # print(" Comments:", route["Comments"])
     #     print()
+
+    print(len(routes))
+    for rating in routes:
+        print(rating["RouteId"])
+        print(rating["UserId"])
+        print(rating["Rating"])
+        print()
