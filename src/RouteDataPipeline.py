@@ -681,7 +681,7 @@ class RoutePipeline(object):
 
         joinClause, whereClause = self.processFilters(**kwargs)
 
-        parentAreaName = kwargs["parentAreaName"] if "parentnreaname" in {key.lower() for key in kwargs.keys()} else None
+        parentAreaName = kwargs["parentAreaName"] if "parentareaname" in {key.lower() for key in kwargs.keys()} else None
 
         if parentAreaName is None:
             query = f"""
@@ -730,7 +730,8 @@ class RoutePipeline(object):
                     r.FirstFreeAscentYear,
                     r.AverageRating,
                     r.VoteCount,
-                    r.URL;
+                    r.URL
+                order by r.RouteId;
             """
         else:
             query = f"""
@@ -791,7 +792,8 @@ class RoutePipeline(object):
                     r.FirstFreeAscentYear,
                     r.AverageRating,
                     r.VoteCount,
-                    r.URL;
+                    r.URL
+                order by r.RouteId;
             """
         # print(query)
 
@@ -870,7 +872,12 @@ class RoutePipeline(object):
                 {whereClause}
                 group by r.RouteId,
                     rr.UserId,
-                    rr.Rating
+                    rr.Rating,
+                    rr.RatingId
+                order by r.RouteId,
+                    rr.UserId,
+                    rr.Rating,
+                    rr.RatingId;
             """
         else:
             query = f"""
@@ -897,9 +904,14 @@ class RoutePipeline(object):
                 {whereClause}
                 group by r.RouteId,
                     rr.UserId,
-                    rr.Rating
+                    rr.Rating,
+                    rr.RatingId
+                order by r.RouteId,
+                    rr.UserId,
+                    rr.Rating,
+                    rr.RatingId;
             """
-        print(query)
+        # print(query)
 
         self.cursor.execute(query)
 
@@ -928,23 +940,23 @@ if __name__ == "__main__":
         geopyUsername="zsnyder21"
     )
 
-    routes = pipe.fetchRouteRatings(
-        # city="Boulder",
-        # state="Colorado",
-        # radius=30,
-        # severityThreshold="PG13",
-        # routeDifficultyLow="5.5",
-        # routeDifficultyHigh="5.8",
-        # type="Top Rope",
-        # elevation="5000+",
-        # parentAreaName="Eldorado Canyon SP"
-        routeDifficultyLow="5.8",
-        routeDifficultyHigh="5.12a",
-        type="Sport, Trad",
-        parentAreaName="Yosemite National Park",
-        # voteCount="20+",
-        # averageRating="3.2+"
-    )
+    # routes = pipe.fetchRouteRatings(
+    #     # city="Boulder",
+    #     # state="Colorado",
+    #     # radius=30,
+    #     # severityThreshold="PG13",
+    #     # routeDifficultyLow="5.5",
+    #     # routeDifficultyHigh="5.8",
+    #     # type="Top Rope",
+    #     # elevation="5000+",
+    #     # parentAreaName="Eldorado Canyon SP"
+    #     routeDifficultyLow="5.8",
+    #     routeDifficultyHigh="5.12a",
+    #     type="Sport, Trad",
+    #     parentAreaName="Yosemite National Park",
+    #     # voteCount="20+",
+    #     # averageRating="3.2+"
+    # )
 
     # route = pipe.fetchRouteByURL(routeURL=r"https://www.mountainproject.com/route/105924807/the-nose")
     # print(route)
@@ -961,9 +973,17 @@ if __name__ == "__main__":
     #     # print(" Comments:", route["Comments"])
     #     print()
 
-    print(len(routes))
-    for rating in routes:
-        print(rating["RouteId"])
-        print(rating["UserId"])
-        print(rating["Rating"])
-        print()
+    # print(len(routes))
+    # for rating in routes:
+    #     print(rating["RouteId"])
+    #     print(rating["UserId"])
+    #     print(rating["Rating"])
+    #     print()
+
+    routesToRecommend = pipe.fetchRoutes(
+        # routeDifficultyLow="5.8",
+        # routeDifficultyHigh="5.12a",
+        # type="Sport, Trad",
+        parentAreaName="Colorado",
+        voteCount="20+"
+    )
