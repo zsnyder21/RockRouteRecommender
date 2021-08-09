@@ -212,7 +212,7 @@ class SparkALSModel(object):
 
         return self.recommender
 
-    def recommendRoutes(self, userId: int, n: int = 5, excludeInteractedRoutes: bool = True, **kwargs):
+    def recommendRoutes(self, userId: int, n: int = 5, excludeInteractedRoutes: bool = True, **kwargs) -> pd.DataFrame:
         """
         Recommend routes based on user id
 

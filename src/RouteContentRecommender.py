@@ -207,7 +207,7 @@ class RouteContentRecommender(object):
 
         return self.routesToRecommend
 
-    def fit(self) -> None:
+    def fit(self, keywords: str = None) -> None:
         """
         Fit the vectorizer and determine similarity. Called automatically from recommendRoutes if necessary
 
@@ -218,7 +218,13 @@ class RouteContentRecommender(object):
                 + [route for route in self.routesToRecommend if route["RouteId"] != self.routeToCompare["RouteId"]]
             )
         else:
-            self.routes = pd.DataFrame(self.routesToRecommend)
+            if keywords is None:
+                raise ValueError("Error: Either a route to compare to or keywords to compare to are required.")
+
+            wordsToCompare = {key: "" for key in self.routesToRecommend[0].keys()}
+            wordsToCompare["Description"] = keywords
+
+            self.routes = pd.DataFrame([wordsToCompare] + self.routesToRecommend)
 
         self.routes["Text"] = self.routes["Description"] + self.routes["Protection"] + self.routes["Comments"]
 
@@ -229,15 +235,16 @@ class RouteContentRecommender(object):
 
         self.similarityMatrix = self.similarityMatrix.argsort()
 
-    def recommendRoutes(self, n: int = 5) -> pd.DataFrame:
+    def recommendRoutes(self, n: int = 5, keywords: str = None) -> pd.DataFrame:
         """
         Recommend top n similar routes
 
         :param n: Number of routes to recommend
+        :param keywords: Key words to use to compare route similarity
         :return: Pandas DataFrame object holding the recommended routes
         """
         if self.similarityMatrix is None:
-            self.fit()
+            self.fit(keywords=keywords)
 
         similarityIndices = self.similarityMatrix[0, -2:-(n + 2):-1]
 
@@ -256,13 +263,13 @@ def main():
         geopyUsername="zsnyder21"
     )
 
-    recommender.fetchRouteToCompare(
-        # routeURL=r"https://www.mountainproject.com/route/105862912/serenity-crack"
-        routeURL=r"https://www.mountainproject.com/route/105991737/freeblast"
-        # routeURL=r"https://www.mountainproject.com/route/105748096/aid-crack"
-        # routeURL=r"https://www.mountainproject.com/route/105749647/upside-the-cranium"
-        # routeURL=r"https://www.mountainproject.com/route/105867013/commitment"
-    )
+    # recommender.fetchRouteToCompare(
+    #     # routeURL=r"https://www.mountainproject.com/route/105862912/serenity-crack"
+    #     routeURL=r"https://www.mountainproject.com/route/105991737/freeblast"
+    #     # routeURL=r"https://www.mountainproject.com/route/105748096/aid-crack"
+    #     # routeURL=r"https://www.mountainproject.com/route/105749647/upside-the-cranium"
+    #     # routeURL=r"https://www.mountainproject.com/route/105867013/commitment"
+    # )
 
     recommender.fetchRoutesToRecommend(
         severityThreshold="PG13",
@@ -274,7 +281,7 @@ def main():
         averageRating="3.0+"
     )
 
-    recommendations = recommender.recommendRoutes(n=5)
+    recommendations = recommender.recommendRoutes(n=5, keywords="Roof, slab")
     print(recommendations[["RouteName", "SimilarityScore"]])
 
 
