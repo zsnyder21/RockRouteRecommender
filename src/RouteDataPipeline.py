@@ -202,6 +202,46 @@ class RoutePipeline(object):
 
         return {fields[idx]: results[idx] for idx in range(fieldCount)}
 
+    def fetchRouteRatingsByURL(self, routeURL: str) -> tuple:
+        """
+        Fetch route information by specified URL
+
+        :param routeURL: URL of the route to fetch
+        :return: Route information of the specified route
+        """
+        routeId = re.search(pattern=r"\d+", string=str(routeURL))
+
+        if routeId is not None:
+            routeId = int(routeId.group(0))
+        else:
+            raise ValueError(f"Error: Cannot parse RouteId from specified URL ({routeURL}).")
+
+        query = f"""
+        select  r.RouteId,
+                rr.UserId,
+                rr.Rating
+            from Routes r
+            inner join RouteRatings rr
+                on rr.RouteId = r.RouteID
+            where r.RouteId = {routeId}
+                and rr.UserId is not null;
+        """
+
+        self.cursor.execute(query)
+        results = self.cursor.fetchall()
+
+        if not results:
+            raise ValueError(f"Could not locate a route matching the URL specified: {routeURL}.")
+
+        fields = [
+            "RouteId",
+            "UserId",
+            "Rating"
+        ]
+        fieldCount = len(fields)
+
+        return [{fields[idx]: result[idx] for idx in range(fieldCount)} for result in results]
+
     def fetchRoutesByArea(self, areaName: str) -> list:
         """
         Fetch all routes that live underneath a given area
@@ -344,7 +384,7 @@ class RoutePipeline(object):
                 typeWhereClause += f"or (lower(r.Type) like '%aid%') "
 
             if "sport" in type:
-                typeWhereClause += f"or (lower(r.Type) like '%sport%' {'and lower(r.Type) not like %trad%' if 'trad' not in type else ''} and lower(r.Type) not like '%aid%' and lower(r.Type) not like '%mixed%' and lower(r.Type) not like '%ice%' and lower(r.Type) not like '%snow%') "
+                typeWhereClause += f"or (lower(r.Type) like '%sport%' and lower(r.Type) not like '%trad%' and lower(r.Type) not like '%aid%' and lower(r.Type) not like '%mixed%' and lower(r.Type) not like '%ice%' and lower(r.Type) not like '%snow%') "
 
             if "boulder" in type:
                 typeWhereClause += f"or (lower(r.Type) like '%boulder%' and lower(r.Type) not like '%trad%') "

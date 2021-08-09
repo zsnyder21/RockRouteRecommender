@@ -205,6 +205,9 @@ class RouteContentRecommender(object):
          """
         self.routesToRecommend = self.routePipeline.fetchRoutes(**kwargs)
 
+        if not self.routesToRecommend:
+            raise ValueError("Error: No routes match the supplied filtering criteria")
+
         return self.routesToRecommend
 
     def fit(self, keywords: str = None) -> None:
@@ -246,7 +249,7 @@ class RouteContentRecommender(object):
         if self.similarityMatrix is None:
             self.fit(keywords=keywords)
 
-        similarityIndices = self.similarityMatrix[0, -2:-(n + 2):-1]
+        similarityIndices = self.similarityMatrix[0, -2:-min((n + 2), 3):-1]
 
         return self.routes.iloc[similarityIndices]
 
@@ -273,12 +276,12 @@ def main():
 
     recommender.fetchRoutesToRecommend(
         severityThreshold="PG13",
-        routeDifficultyLow="5.8",
-        routeDifficultyHigh="5.12a",
-        type="Trad",
-        parentAreaName="Colorado",
-        voteCount="20+",
-        averageRating="3.0+"
+        routeDifficultyLow="5.13c",
+        routeDifficultyHigh="5.14d",
+        type="Sport",
+        parentAreaName="Eldorado Canyon SP",
+        # voteCount="20+",
+        # averageRating="3.0+"
     )
 
     recommendations = recommender.recommendRoutes(n=5, keywords="Roof, slab")

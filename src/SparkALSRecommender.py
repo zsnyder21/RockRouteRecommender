@@ -226,6 +226,9 @@ class SparkALSModel(object):
             self.routePipeline.fetchRoutes(**kwargs)
         )
 
+        if routesToRecommend.empty:
+            raise ValueError("Error: No routes found matching supplied search criteria")
+
         if excludeInteractedRoutes:
             userInteractedRoutes = pd.DataFrame(self.routePipeline.fetchUserRoutes(userId=userId))
             routesToRecommend = routesToRecommend[~routesToRecommend["RouteId"].isin(userInteractedRoutes["RouteId"])]
@@ -235,11 +238,11 @@ class SparkALSModel(object):
 
         spark_df = spark.createDataFrame(routeIds)
         recommendations = self.recommender.transform(spark_df).toPandas()
-
-        routesToRecommend = routesToRecommend.merge(recommendations[["RouteId", "prediction"]], on="RouteId", how="inner")
+        print(routesToRecommend)
+        routesToRecommend = routesToRecommend.merge(recommendations[["RouteId", "prediction"]], on="RouteId", how="left")
         recommendationIdxs = routesToRecommend["prediction"].values.argsort()
 
-        return routesToRecommend.iloc[recommendationIdxs[-1:-n:-1]]
+        return routesToRecommend.iloc[recommendationIdxs[-1:-2:-1]]
 
 
 def main():
