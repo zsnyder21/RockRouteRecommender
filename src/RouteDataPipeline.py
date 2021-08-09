@@ -927,6 +927,26 @@ class RoutePipeline(object):
 
         return [{fields[idx] : record[idx] for idx in range(fieldCount)} for record in results]
 
+    def fetchUserRoutes(self, userId: int):
+        query = f"""
+        select distinct RouteId
+            from RouteTicks
+            where UserId = {userId}
+        union
+        select distinct RouteId
+            from RouteRatings
+            where UserId = {userId}
+        union
+        select distinct RouteId
+            from RouteToDos
+            where UserId = {userId}
+        """
+
+        self.cursor.execute(query)
+        routeIds = self.cursor.fetchall()
+
+        return [{"RouteId": routeId[0]} for routeId in routeIds]
+
 
 if __name__ == "__main__":
     load_dotenv()

@@ -55,7 +55,7 @@ class SparkALSModel(object):
 
         :param filepath: Path to directory containing the saved models
         """
-        # self.model = ALS.load(dir + ("/" if dir[-1] != "/" else "") + "model")
+        self.model = ALS.load(dir + ("/" if dir[-1] != "/" else "") + "model")
         self.recommender = ALSModel.load(dir + ("/" if dir[-1] != "/" else "") + "recommender")
 
         with open(dir + ("/" if dir[-1] != "/" else "") + "ratings.p", "rb") as file:
@@ -68,7 +68,7 @@ class SparkALSModel(object):
 
         :param filepath: Location to save the class
         """
-        # self.model.save(dir + ("/" if dir[-1] != "/" else "") + "model")
+        self.model.save(dir + ("/" if dir[-1] != "/" else "") + "model")
         self.recommender.save(dir + ("/" if dir[-1] != "/" else "") + "recommender")
 
         with open(dir + ("/" if dir[-1] != "/" else "") + "ratings.p", "wb") as file:
@@ -212,25 +212,34 @@ class SparkALSModel(object):
 
         return self.recommender
 
-    def recommendRoutes(self, userId: int, n: int = 5, **kwargs):
+    def recommendRoutes(self, userId: int, n: int = 5, excludeInteractedRoutes: bool = True, **kwargs):
+        """
+        Recommend routes based on user id
+
+        :param userId: User id of the user the recommend rotues for
+        :param n: How many routes to recommend
+        :param excludeInteractedRoutes: Whether or not to exlude routes the user has interacted with (ticked, rated, or marked to-do)
+        :param kwargs: Key word arguments to filter the routes. See RouteDataPipeline.fetchRoutes
+        :return: Top n recommended routes
+        """
         routesToRecommend = pd.DataFrame(
             self.routePipeline.fetchRoutes(**kwargs)
         )
 
-        routeIds = routesToRecommend[["RouteId"]]
-        routeIds.loc[:, "UserId"] = [userId] * len(routesToRecommend)
+        if excludeInteractedRoutes:
+            userInteractedRoutes = pd.DataFrame(self.routePipeline.fetchUserRoutes(userId=userId))
+            routesToRecommend = routesToRecommend[~routesToRecommend["RouteId"].isin(userInteractedRoutes["RouteId"])]
 
-        print(routeIds)
+        routeIds = routesToRecommend.copy()[["RouteId"]]
+        routeIds["UserId"] = [userId] * len(routesToRecommend)
+
         spark_df = spark.createDataFrame(routeIds)
-        spark_df.show()
         recommendations = self.recommender.transform(spark_df).toPandas()
-        # print(len(recommendations), recommendations)
-        routesToRecommend.loc[:, "PredictedRating"] = recommendations["prediction"]
-        recommendations = recommendations["prediction"].values.argsort()
 
-        return routesToRecommend.iloc[recommendations[-1:-n:-1]]
+        routesToRecommend = routesToRecommend.merge(recommendations[["RouteId", "prediction"]], on="RouteId", how="inner")
+        recommendationIdxs = routesToRecommend["prediction"].values.argsort()
 
-
+        return routesToRecommend.iloc[recommendationIdxs[-1:-n:-1]]
 
 
 def main():
