@@ -4,226 +4,267 @@
 
 {% block content %}
 
+<style>
+   body{
+     background-image:url('../static/img/Down-Valley.jpg');
+     width:100%;
 
-  <div class="container">
-    <h1>Select Recommendation Criteria</h1>
+    background-size: cover;
+   }
 
-    <br/>
+   @media only screen and (max-width: 600px) {
+       body {
+           background-size: auto;
+       }
+   }
 
-    <form action="{{url_for('displayUserSimilarRoutes')}}" method="POST">
-      <div class="form-group">
-        <label for="UserId">
-          <strong>UserId</strong>
-        </label>
 
-        <input type="text" class="form-control" id="UserId" aria-describedby="textHelp"
-        placeholder="UserId" pattern="[0-9]+" name="UserId" style="width: 469px; display: inline-block;">
-      </div>
+
+.main {
+  background-color: rgba(255, 255, 255, 0.5);
+  margin-top: 100px;
+  padding-bottom: 50px;
+}
+.main h1 {
+  font-size: 5em;
+}
+.main h2 {
+  font-size:3em;
+}
+.main h3 {
+  font-size:2em;
+}
+.main p {
+  font-size:2em;
+}
+
+</style>
+
+
+<div class="overlay"/>
+<div class="main">
+  <div class="starter-template">
+    <div class="container">
+      <h2>Select Recommendation Criteria</h2>
 
       <br/>
 
-      <div class="form-group">
-        <strong>
-          <label for="RouteTypes">Route Type(s)</label>
-        </strong>
+      <form action="{{url_for('displayUserSimilarRoutes')}}" method="POST">
+        <div class="form-group">
+          <label for="UserId">
+            <strong>UserId</strong>
+          </label>
+
+          <input type="text" class="form-control" id="UserId" aria-describedby="textHelp"
+          placeholder="Your MountainProject UserId" pattern="[0-9]+" name="UserId" style="width: 469px; display: inline-block;">
+        </div>
+
         <br/>
 
-        <div class="form-check form-check-inline">
-          <input class="form-check-input" type="checkbox" value="Sport" id="SportCheck" name="SportCheck">
-          <label class="form-check-label" for="SportCheck" name="SportCheckLabel">
-            Sport
-          </label>
+        <div class="form-group">
+          <strong>
+            <label for="RouteTypes">Route Type(s)</label>
+          </strong>
+          <br/>
+
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" value="Sport" id="SportCheck" name="SportCheck">
+            <label class="form-check-label" for="SportCheck" name="SportCheckLabel">
+              Sport
+            </label>
+          </div>
+
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" value="Trad" id="TradCheck" name="TradCheck">
+            <label class="form-check-label" for="TradCheck" name="TradCheckLabel">
+              Trad
+            </label>
+          </div>
+
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" value="Boulder" id="BoulderCheck" name="BoulderCheck">
+            <label class="form-check-label" for="BoulderCheck" name="BoulderCheckLabel">
+              Boulder
+            </label>
+          </div>
+
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" value="Aid" id="AidCheck" name="AidCheck">
+            <label class="form-check-label" for="AidCheck" name="AidCheckLabel">
+              Aid
+            </label>
+          </div>
+
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" value="Alpine" id="AlpineCheck" name="AlpineCheck">
+            <label class="form-check-label" for="AlpineCheck" name="AlpineCheckLabel">
+              Alpine
+            </label>
+          </div>
+
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" value="Snow" id="SnowCheck" name="SnowCheck">
+            <label class="form-check-label" for="SnowCheck" name="SnowCheckLabel">
+              Snow
+            </label>
+          </div>
+
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" value="Ice" id="IceCheck" name="IceCheck">
+            <label class="form-check-label" for="IceCheck" name="IceCheckLabel">
+              Ice
+            </label>
+          </div>
+
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" value="Mixed" id="MixedCheck" name="MixedCheck">
+            <label class="form-check-label" for="MixedCheck" name="MixedCheckLabel">
+              Mixed
+            </label>
+          </div>
+
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" value="Top Rope" id="TopRopeCheck" name="TopRopeCheck">
+            <label class="form-check-label" for="TopRopeCheck" name="TopRopeCheckLabel">
+              Top Rope
+            </label>
+          </div>
         </div>
 
-        <div class="form-check form-check-inline">
-          <input class="form-check-input" type="checkbox" value="Trad" id="TradCheck" name="TradCheck">
-          <label class="form-check-label" for="TradCheck" name="TradCheckLabel">
-            Trad
+        <br/>
+
+        <div class="form-group">
+          <label for="form-select">
+            <strong>Route Difficulty</strong>
           </label>
+
+          <select id="RatingSystem" class="form-control" name="RatingSystem" style="width: 175px; display: inline-block;">
+          </select>
+
+          <select id="DifficultyLow"  class="form-control" name="DifficultyLow" style="width: 125px; display: inline-block;">
+          </select>
+
+          <select id="DifficultyHigh"  class="form-control" name="DifficultyHigh" style="width: 125px; display: inline-block;">
+          </select>
         </div>
 
-        <div class="form-check form-check-inline">
-          <input class="form-check-input" type="checkbox" value="Boulder" id="BoulderCheck" name="BoulderCheck">
-          <label class="form-check-label" for="BoulderCheck" name="BoulderCheckLabel">
-            Boulder
+        <br/>
+
+        <div class="form-group">
+          <label for="ParentAreaName">
+            <strong>Area Name</strong>
           </label>
+
+          <input type="text" class="form-control" id="ParentAreaName" aria-describedby="textHelp"
+          placeholder="Area the route lives under" name="ParentAreaName" style="width: 469px; display: inline-block;">
         </div>
 
-        <div class="form-check form-check-inline">
-          <input class="form-check-input" type="checkbox" value="Aid" id="AidCheck" name="AidCheck">
-          <label class="form-check-label" for="AidCheck" name="AidCheckLabel">
-            Aid
+        <br/>
+
+        <div class="form-group">
+          <label for="Height">
+            <strong>Height (ft)</strong>
           </label>
+
+          <input type="text" class="form-control" id="Height" aria-describedby="textHelp"
+          placeholder="Height" name="Height" pattern="[0-9]+[\+\-]?" style="width: 100px; display: inline-block;">
+
+          &emsp;
+
+          <label for="Height">
+            <strong>Pitch Count</strong>
+          </label>
+
+          <input type="text" class="form-control" id="Pitches" aria-describedby="textHelp"
+          placeholder="Pitches" name="Pitches" pattern="[0-9]+[\+\-]?" style="width: 75px; display: inline-block;">
+
+          &emsp;
+
+          <label for="Grade">
+            <strong>Grade</strong>
+          </label>
+
+          <input type="text" class="form-control" id="Grade" aria-describedby="textHelp"
+          placeholder="Grade" name="Grade" pattern="[0-9]+[\+\-]?" style="width: 75px; display: inline-block;">
         </div>
 
-        <div class="form-check form-check-inline">
-          <input class="form-check-input" type="checkbox" value="Alpine" id="AlpineCheck" name="AlpineCheck">
-          <label class="form-check-label" for="AlpineCheck" name="AlpineCheckLabel">
-            Alpine
+        <br/>
+
+        <div class="form-group">
+          <label for="Elevation">
+            <strong>Elevation (ft)</strong>
           </label>
+
+          <input type="text" class="form-control" id="Elevation" aria-describedby="textHelp"
+          placeholder="Elevation" name="Elevation" pattern="[0-9]+[\+\-]?" style="width: 100px; display: inline-block;">
+
+          &emsp;
+
+          <label for="Severity">
+            <strong>Max Severity</strong>
+          </label>
+
+          <select id="Severity" class="form-control" name="Severity" style="width: 80px; display: inline-block;">
+            <option selected></option>
+            <option>G</option>
+            <option>PG</option>
+            <option>PG13</option>
+            <option>R</option>
+            <option>X</option>
+          </select>
         </div>
 
-        <div class="form-check form-check-inline">
-          <input class="form-check-input" type="checkbox" value="Snow" id="SnowCheck" name="SnowCheck">
-          <label class="form-check-label" for="SnowCheck" name="SnowCheckLabel">
-            Snow
+        <br/>
+
+        <div class="form-group">
+          <label for="AverageRating">
+            <strong>Average Rating</strong>
           </label>
+
+          <input type="text" class="form-control" id="AverageRating" aria-describedby="textHelp"
+          placeholder="Avg Rating" name="AverageRating" pattern="(?:[0-3]\.?[0-9]*[\+\-]?)|(?:[4]\.?[0]?[\-]?)" style="width: 115px; display: inline-block;">
+
+          &emsp;
+
+          <label for="RatingCount">
+            <strong>Rating Count</strong>
+          </label>
+
+          <input type="text" class="form-control" id="RatingCount" aria-describedby="textHelp"
+          placeholder="# Ratings " name="RatingCount" pattern="[0-9]+[\+\-]?" style="width: 100px; display: inline-block;">
         </div>
 
-        <div class="form-check form-check-inline">
-          <input class="form-check-input" type="checkbox" value="Ice" id="IceCheck" name="IceCheck">
-          <label class="form-check-label" for="IceCheck" name="IceCheckLabel">
-            Ice
+        <br/>
+
+        <div class="form-group">
+          <label for="">
+            <strong>Proximity</strong>
           </label>
+
+          <input type="text" class="form-control" id="City" aria-describedby="textHelp"
+          placeholder="City" name="City" style="width: 200px; display: inline-block;">
+
+          <input type="text" class="form-control" id="State" aria-describedby="textHelp"
+          placeholder="State" name="State" style="width: 100px; display: inline-block;">
+
+          <input type="text" class="form-control" id="Distance" aria-describedby="textHelp"
+          placeholder="Distance" name="Distance" pattern="[0-9]+\.?[0-9]*[\+\-]?" style="width: 100px; display: inline-block;">
+
+          <select id="DistanceUnits" class="form-control" name="DistanceUnits" style="width: 55px; display: inline-block;">
+            <option selected>mi</option>
+            <option>km</option>
+          </select>
+
         </div>
 
-        <div class="form-check form-check-inline">
-          <input class="form-check-input" type="checkbox" value="Mixed" id="MixedCheck" name="MixedCheck">
-          <label class="form-check-label" for="MixedCheck" name="MixedCheckLabel">
-            Mixed
-          </label>
-        </div>
-
-        <div class="form-check form-check-inline">
-          <input class="form-check-input" type="checkbox" value="Top Rope" id="TopRopeCheck" name="TopRopeCheck">
-          <label class="form-check-label" for="TopRopeCheck" name="TopRopeCheckLabel">
-            Top Rope
-          </label>
-        </div>
-      </div>
-
-      <br/>
-
-      <div class="form-group">
-        <label for="form-select">
-          <strong>Route Difficulty</strong>
-        </label>
-
-        <select id="RatingSystem" class="form-control" name="RatingSystem" style="width: 175px; display: inline-block;">
-        </select>
-
-        <select id="DifficultyLow"  class="form-control" name="DifficultyLow" style="width: 125px; display: inline-block;">
-        </select>
-
-        <select id="DifficultyHigh"  class="form-control" name="DifficultyHigh" style="width: 125px; display: inline-block;">
-        </select>
-      </div>
-
-      <br/>
-
-      <div class="form-group">
-        <label for="ParentAreaName">
-          <strong>Area Name</strong>
-        </label>
-
-        <input type="text" class="form-control" id="ParentAreaName" aria-describedby="textHelp"
-        placeholder="Area the route lives under" name="ParentAreaName" style="width: 469px; display: inline-block;">
-      </div>
-
-      <br/>
-
-      <div class="form-group">
-        <label for="Height">
-          <strong>Height (ft)</strong>
-        </label>
-
-        <input type="text" class="form-control" id="Height" aria-describedby="textHelp"
-        placeholder="Height" name="Height" pattern="[0-9]+[\+\-]?" style="width: 100px; display: inline-block;">
-
-        &emsp;
-
-        <label for="Height">
-          <strong>Pitch Count</strong>
-        </label>
-
-        <input type="text" class="form-control" id="Pitches" aria-describedby="textHelp"
-        placeholder="Pitches" name="Pitches" pattern="[0-9]+[\+\-]?" style="width: 75px; display: inline-block;">
-
-        &emsp;
-
-        <label for="Grade">
-          <strong>Grade</strong>
-        </label>
-
-        <input type="text" class="form-control" id="Grade" aria-describedby="textHelp"
-        placeholder="Grade" name="Grade" pattern="[0-9]+[\+\-]?" style="width: 75px; display: inline-block;">
-      </div>
-
-      <br/>
-
-      <div class="form-group">
-        <label for="Elevation">
-          <strong>Elevation (ft)</strong>
-        </label>
-
-        <input type="text" class="form-control" id="Elevation" aria-describedby="textHelp"
-        placeholder="Elevation" name="Elevation" pattern="[0-9]+[\+\-]?" style="width: 100px; display: inline-block;">
-
-        &emsp;
-
-        <label for="Severity">
-          <strong>Max Severity</strong>
-        </label>
-
-        <select id="Severity" class="form-control" name="Severity" style="width: 80px; display: inline-block;">
-          <option selected></option>
-          <option>G</option>
-          <option>PG</option>
-          <option>PG13</option>
-          <option>R</option>
-          <option>X</option>
-        </select>
-      </div>
-
-      <br/>
-
-      <div class="form-group">
-        <label for="AverageRating">
-          <strong>Average Rating</strong>
-        </label>
-
-        <input type="text" class="form-control" id="AverageRating" aria-describedby="textHelp"
-        placeholder="Avg Rating" name="AverageRating" pattern="(?:[0-3]\.?[0-9]*[\+\-]?)|(?:[4]\.?[0]?[\-]?)" style="width: 115px; display: inline-block;">
-
-        &emsp;
-
-        <label for="RatingCount">
-          <strong>Rating Count</strong>
-        </label>
-
-        <input type="text" class="form-control" id="RatingCount" aria-describedby="textHelp"
-        placeholder="# Ratings " name="RatingCount" pattern="[0-9]+[\+\-]?" style="width: 100px; display: inline-block;">
-      </div>
-
-      <br/>
-
-      <div class="form-group">
-        <label for="">
-          <strong>Proximity</strong>
-        </label>
-
-        <input type="text" class="form-control" id="City" aria-describedby="textHelp"
-        placeholder="City" name="City" style="width: 200px; display: inline-block;">
-
-        <input type="text" class="form-control" id="State" aria-describedby="textHelp"
-        placeholder="State" name="State" style="width: 100px; display: inline-block;">
-
-        <input type="text" class="form-control" id="Distance" aria-describedby="textHelp"
-        placeholder="Distance" name="Distance" pattern="[0-9]+\.?[0-9]*[\+\-]?" style="width: 100px; display: inline-block;">
-
-        <select id="DistanceUnits" class="form-control" name="DistanceUnits" style="width: 55px; display: inline-block;">
-          <option selected>mi</option>
-          <option>km</option>
-        </select>
-
-      </div>
-
-      <br/>
-      <button type="submit" class="btn btn-secondary">Submit</button>
+        <br/>
+        <button type="submit" class="btn btn-secondary">Submit</button>
 
 
-    </form>
+      </form>
+    </div>
   </div>
+</div>
 
 <script src="//code.jquery.com/jquery-2.1.1.min.js"></script>
 <script>

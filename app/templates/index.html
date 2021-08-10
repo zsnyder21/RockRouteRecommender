@@ -3,8 +3,59 @@
 {% block title %}Climbing Route Recommender{% endblock %}
 
 {% block content %}
-  <div class="container">
-    <h1>Welcome to the Rock Climbing Route Recommender!</h1>
-    <h1>The navigation buttons at the top of the page will guide you to your next rock climbing adventure!</h1>
+
+<style>
+   body{
+     background-image:url('../static/img/El-Capitan-Golden.jpg');
+     width:100%;
+
+    background-size: cover;
+   }
+
+   @media only screen and (max-width: 600px) {
+       body {
+           background-size: auto;
+       }
+   }
+
+
+
+.main {
+  background-color: rgba(255, 255, 255, 0.5);
+  margin-top: 100px;
+  padding-bottom: 50px;
+}
+.main h1 {
+  font-size: 5em;
+}
+.main h2 {
+  font-size:3em;
+}
+.main p {
+  font-size:2em;
+}
+
+
+</style>
+
+
+
+
+
+<div class="overlay" />
+
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+
+<div class="main">
+  <div class="starter-template">
+    <h1>Climbing Route Recommender</h1>
+    <h2>Find your next adventure!</h2>
   </div>
+</div>
+
 {% endblock %}
