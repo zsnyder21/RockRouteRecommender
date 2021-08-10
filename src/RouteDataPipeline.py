@@ -41,6 +41,55 @@ class RoutePipeline(object):
         self.cursor.close()
         self.connection.close()
 
+    def fetchRatingSystemDifficulties(self) -> dict:
+        """
+        Collects and returns all possible difficulties for all rating
+        systems present in the database
+        :return: Dictionary of lists containing difficulties for each rating system
+        """
+        difficultySystemValues = dict()
+
+        query = """
+        select	distinct RatingSystem,
+                case when RatingSystem = 'YDS' then 1
+                          when RatingSystem = 'V' then 2
+                          when RatingSystem = 'C' then 3
+                          when RatingSystem = 'A' then 4
+                          when RatingSystem = 'Snow' then 5
+                          when RatingSystem = 'AI' then 6
+                          when RatingSystem = 'WI' then 7
+                          when RatingSystem = 'M' then 8 end as ordering,
+
+                case when RatingSystem = 'YDS' then 'Yosemite Decimal'
+                          when RatingSystem = 'V' then 'V Scale'
+                          when RatingSystem = 'C' then 'Clean Aid'
+                          when RatingSystem = 'A' then 'Aid'
+                          when RatingSystem = 'Snow' then 'Snow'
+                          when RatingSystem = 'AI' then 'Alpine Ice'
+                          when RatingSystem = 'WI' then 'Winter Ice'
+                          when RatingSystem = 'M' then 'Mixed' end as ratingsystemname
+            from difficultyreference
+            order by 2
+        """
+
+        self.cursor.execute(query)
+        difficultySystems = self.cursor.fetchall()
+
+        for ratingSystem, _, ratingSystemName in difficultySystems:
+            query = f"""
+            select Difficulty, DifficultyRanking
+                from DifficultyReference
+                where RatingSystem = '{ratingSystem}'
+                    and Difficulty != '5th'
+                order by 2
+            """
+
+            self.cursor.execute(query)
+            ratingSystemRatings = [item[0] for item in self.cursor.fetchall()]
+
+            difficultySystemValues[ratingSystemName] = ratingSystemRatings
+
+        return difficultySystemValues
 
     def fetchRoutesByLatLong(self, latitude: float, longitude: str, maximumDistance: float, distanceUnits: str = "mi") -> list:
         """

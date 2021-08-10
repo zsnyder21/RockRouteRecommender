@@ -238,7 +238,7 @@ class SparkALSModel(object):
 
         spark_df = spark.createDataFrame(routeIds)
         recommendations = self.recommender.transform(spark_df).toPandas()
-        print(routesToRecommend)
+
         routesToRecommend = routesToRecommend.merge(recommendations[["RouteId", "prediction"]], on="RouteId", how="left")
         recommendationIdxs = routesToRecommend["prediction"].values.argsort()
 

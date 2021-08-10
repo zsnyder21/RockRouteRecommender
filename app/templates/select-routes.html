@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}{{title}}{% endblock %}
+
+{% block content %}
+
+
+  <div class="container">
+    <h1>Select Filtering Criteria</h1>
+
+      <br/>
+      <br/>
+
+    <form action="{{url_for('displayFilteredRoutes')}}" method="POST">
+      <div class="form-group">
+        <strong>
+          <label for="RouteTypes">Route Type(s)</label>
+        </strong>
+        <br/>
+
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="checkbox" value="Sport" id="SportCheck" name="SportCheck">
+          <label class="form-check-label" for="SportCheck" name="SportCheckLabel">
+            Sport
+          </label>
+        </div>
+
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="checkbox" value="Trad" id="TradCheck" name="TradCheck">
+          <label class="form-check-label" for="TradCheck" name="TradCheckLabel">
+            Trad
+          </label>
+        </div>
+
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="checkbox" value="Boulder" id="BoulderCheck" name="BoulderCheck">
+          <label class="form-check-label" for="BoulderCheck" name="BoulderCheckLabel">
+            Boulder
+          </label>
+        </div>
+
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="checkbox" value="Aid" id="AidCheck" name="AidCheck">
+          <label class="form-check-label" for="AidCheck" name="AidCheckLabel">
+            Aid
+          </label>
+        </div>
+
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="checkbox" value="Alpine" id="AlpineCheck" name="AlpineCheck">
+          <label class="form-check-label" for="AlpineCheck" name="AlpineCheckLabel">
+            Alpine
+          </label>
+        </div>
+
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="checkbox" value="Snow" id="SnowCheck" name="SnowCheck">
+          <label class="form-check-label" for="SnowCheck" name="SnowCheckLabel">
+            Snow
+          </label>
+        </div>
+
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="checkbox" value="Ice" id="IceCheck" name="IceCheck">
+          <label class="form-check-label" for="IceCheck" name="IceCheckLabel">
+            Ice
+          </label>
+        </div>
+
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="checkbox" value="Mixed" id="MixedCheck" name="MixedCheck">
+          <label class="form-check-label" for="MixedCheck" name="MixedCheckLabel">
+            Mixed
+          </label>
+        </div>
+
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="checkbox" value="Top Rope" id="TopRopeCheck" name="TopRopeCheck">
+          <label class="form-check-label" for="TopRopeCheck" name="TopRopeCheckLabel">
+            Top Rope
+          </label>
+        </div>
+      </div>
+
+      <br/>
+
+      <div class="form-group">
+        <label for="form-select">
+          <strong>Route Difficulty</strong>
+        </label>
+
+        <select id="RatingSystem" class="form-control" name="RatingSystem" style="width: 175px; display: inline-block;">
+        </select>
+
+        <select id="DifficultyLow"  class="form-control" name="DifficultyLow" style="width: 125px; display: inline-block;">
+        </select>
+
+        <select id="DifficultyHigh"  class="form-control" name="DifficultyHigh" style="width: 125px; display: inline-block;">
+        </select>
+
+
+      </div>
+
+      <br/>
+
+      <div class="form-group">
+        <label for="exampleLastName">Area Name</label>
+        <input type="text" class="form-control" id="exampleLastName" aria-describedby="textHelp"
+        placeholder="Area the route lives under" name="ParentAreaName">
+      </div>
+
+      <div class="form-group">
+        <label for="exampleEmail">Email Address</label>
+        <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp"
+        placeholder="email@domain.com" name="email">
+      </div>
+
+      <br/>
+      <button type="submit" class="btn btn-secondary">Submit</button>
+
+
+    </form>
+  </div>
+
+<script src="//code.jquery.com/jquery-2.1.1.min.js"></script>
+<script>
+    "use strict";
+
+    var ratingSystems = {{ ratingSystems|tojson }};
+
+    var form = $('form');
+    var ratingSystem = $('select#RatingSystem');
+    var difficultyLow = $('select#DifficultyLow');
+    var difficultyHigh = $('select#DifficultyHigh');
+
+    for (var key in ratingSystems) {
+        ratingSystem.append($('<option/>', {'value': key, 'text': key}));
+    }
+
+    ratingSystem.change(function(ev) {
+        difficultyLow.empty();
+        difficultyLow.append($('<option/>'));
+
+        difficultyHigh.empty();
+        difficultyHigh.append($('<option/>'));
+
+        var difficulties = ratingSystems[ratingSystem.val()];
+
+        for (var diff in difficulties) {
+            difficultyLow.append($('<option/>', {'value': difficulties[diff], 'text': difficulties[diff]}));
+            difficultyHigh.append($('<option/>', {'value': difficulties[diff], 'text': difficulties[diff]}));
+        }
+    });
+</script>
+{% endblock %}
