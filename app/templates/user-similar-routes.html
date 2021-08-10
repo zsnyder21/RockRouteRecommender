@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}{{title}}{% endblock %}
+
+{% block content %}
+  <div class="container">
+    <h1>Recommended Routes Based on your Search Criteria</h1>
+    <table border="2" class="dataframe">
+      <thead>
+        <tr style="text-align: center">
+          <th>Route Name</th>
+          <th>Difficulty</th>
+          <th>Type</th>
+          <th>Severity</th>
+          <th>Height</th>
+          <th>Pitches</th>
+          <th>Average Rating</th>
+          <th>Rating Count</th>
+          <th>URL</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for _, route in routes.iterrows() %}
+        <tr>
+          <td style="text-align: center; width: 400px">{{route["RouteName"]}}</td>
+          <td style="text-align: center; width: 100px">{{(route["Difficulty_YDS"] or "") + " " + (route["Difficulty_ADL"] or "")}}</td>
+          <td style="text-align: center; width: 250px">{{route["Type"]}}</td>
+          <td style="text-align: center; width: 100px">{{route["Severity"] or ""}}</td>
+          <td style="text-align: center; width: 100px">{{route["Height"] or ""}}</td>
+          <td style="text-align: center; width: 200px">{{route["Pitches"] or ""}}</td>
+          <td style="text-align: center; width: 200px">{{route["AverageRating"] or ""}}</td>
+          <td style="text-align: center; width: 200px">{{route["VoteCount"] or ""}}</td>
+          <td style="text-align: center; width: 300px">
+            <a href="{{route['URL']}}" target="_blank" rel="noopener noreferrer">
+              {{route["URL"]}}
+            </a>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+{% endblock %}

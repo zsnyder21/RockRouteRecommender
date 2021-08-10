@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}About the Route Recommender{% endblock %}
+{% block content %}
+  <div class="container">
+    <h1>General Information</h1>
+    <p>
+      Have you ever struggled to find routes? Yeah, me too. The search capabilities on MountainProject leave something
+      to be desired. Through this interface you can search for routes in a much more natural fashion.
+    </p>
+
+    <br/>
+
+    <p>
+      Not only can you select routes, but you can also have them recommended to you based on textual similarity of
+      climbing keywords, user similarity where routes are recommended to you based off of the routes you have
+      previously rated, or item similarity where routes are recommended because users who climbed route X also climbed
+      route Y.
+    </p>
+
+    <br/>
+
+    <p>
+      Note that when interacting with the search and recommendation utilities that the broader your search criteria are,
+      the longer it will take to return your results. This is especially true of the user similarity recommender.
+    </p>
+
+    <br/>
+
+    <p>
+      Finally, when using the recommendation utilities, the only strictly required field is the first one on each page.
+      Without that information the recommenders cannot function as it will have nothing to recommend based off of.
+    </p>
+  </div>
+{% endblock %}

@@ -827,7 +827,7 @@ class RoutePipeline(object):
             ; with recursive SubAreas as (
                 select AreaId
                     from Areas
-                    where AreaName like '%{parentAreaName}%'
+                    where lower(AreaName) like '%{parentAreaName.lower()}%'
                 union all
                 select a.AreaId
                     from Areas a
@@ -930,7 +930,7 @@ class RoutePipeline(object):
         :param pitches: Number of pitches to filter on. Append + for >= height, - for <= height.
         :param grade: Grade to filter on (given as 1,2,3,4,5,6,7). Append + for >= height, - for <= height.
         :param severityThreshold: Severity to filter on. This is the maximum severity you will tolerate.
-        :param averageRating: Average rating to filter on. Append + for >= height, - for <= height.
+        :param averageRating: Average rating to filter on. Append + for >= averageRating, - for <= averageRating.
         :param elevation: Elevation to filter on. Append + for >= height, - for <= height.
         :param voteCount: Vote count to filter on. Append + for >= height, - for <= height.
         :param city: City to determine route proximity with. Must be specified with state and radius.
@@ -973,7 +973,7 @@ class RoutePipeline(object):
             ; with recursive SubAreas as (
                 select AreaId
                     from Areas
-                    where AreaName like '%{parentAreaName}%'
+                    where lower(AreaName) like '%{parentAreaName.lower()}%'
                 union all
                 select a.AreaId
                     from Areas a

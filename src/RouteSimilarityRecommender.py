@@ -58,7 +58,6 @@ class RouteSimilarityRecommender(object):
         if self.routeToCompare is None:
             raise ValueError("Error: No route selected to compare to. Run fetchRouteToCompare to select one.")
 
-
         routesToRecommend = pd.DataFrame(
             self.routePipeline.fetchRoutes(**kwargs)
         )

@@ -6,12 +6,22 @@
 
 
   <div class="container">
-    <h1>Select Filtering Criteria</h1>
+    <h1>Select Recommendation Criteria</h1>
+
+    <br/>
+
+    <form action="{{url_for('displayTextuallySimilarRoutes')}}" method="POST">
+      <div class="form-group">
+        <label for="Keywords">
+          <strong>Reference Keywords or Route URL</strong>
+        </label>
+
+        <input type="text" class="form-control" id="Keywords" aria-describedby="textHelp"
+        placeholder="Route URL or Keywords" name="Keywords" style="width: 469px; display: inline-block;">
+      </div>
 
       <br/>
-      <br/>
 
-    <form action="{{url_for('displayFilteredRoutes')}}" method="POST">
       <div class="form-group">
         <strong>
           <label for="RouteTypes">Route Type(s)</label>

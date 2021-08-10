@@ -249,7 +249,7 @@ class RouteContentRecommender(object):
         if self.similarityMatrix is None:
             self.fit(keywords=keywords)
 
-        similarityIndices = self.similarityMatrix[0, -2:-min((n + 2), 3):-1]
+        similarityIndices = self.similarityMatrix[0, -2:-(n + 2):-1]
 
         return self.routes.iloc[similarityIndices]
 
@@ -276,9 +276,9 @@ def main():
 
     recommender.fetchRoutesToRecommend(
         severityThreshold="PG13",
-        routeDifficultyLow="5.13c",
-        routeDifficultyHigh="5.14d",
-        type="Sport",
+        # routeDifficultyLow="5.13c",
+        # routeDifficultyHigh="5.14d",
+        # type="Sport",
         parentAreaName="Eldorado Canyon SP",
         # voteCount="20+",
         # averageRating="3.0+"

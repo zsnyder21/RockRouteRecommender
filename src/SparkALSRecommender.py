@@ -238,11 +238,12 @@ class SparkALSModel(object):
 
         spark_df = spark.createDataFrame(routeIds)
         recommendations = self.recommender.transform(spark_df).toPandas()
+        recommendations["prediction"].fillna(0, inplace=True)
 
-        routesToRecommend = routesToRecommend.merge(recommendations[["RouteId", "prediction"]], on="RouteId", how="left")
+        routesToRecommend = routesToRecommend.merge(recommendations[["RouteId", "prediction"]], on="RouteId", how="inner")
         recommendationIdxs = routesToRecommend["prediction"].values.argsort()
 
-        return routesToRecommend.iloc[recommendationIdxs[-1:-2:-1]]
+        return routesToRecommend.iloc[recommendationIdxs[-1:-n:-1]]
 
 
 def main():
