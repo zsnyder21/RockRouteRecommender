@@ -157,9 +157,9 @@ class SparkALSModel(object):
 
         model = crossValidator.fit(train)
 
-        self.model = model.bestModel
+        self.recommender = model.bestModel
 
-        predictions = self.model.transform(test)
+        predictions = self.recommender.transform(test)
         metricValue = modelEvaluator.evaluate(predictions)
 
         return self.model, metricValue
