@@ -110,7 +110,9 @@ tool was created that (in my opinion) far surpasses the functionality present on
 capabilities that this pipeline posesses allows for far more control over what routes you are searching for.
 
 ## Application
-I took these recommendation systems and deployed them via a Flask application.
+I took these recommendation systems and deployed them via a Flask application. You can interact with it
+[here](http://18.119.114.126:8080/). Note that the Matrix Factorization recommender is omitted from this site as the
+model and supporting data do not fit on my EC2 instance.
 
 <img src="./img/Flask_Homepage.PNG">
 
