@@ -70,7 +70,7 @@ def contact():
 
 @app.route("/select-routes")
 def selectRoutes():
-    title = "Select Filtering Criteria"
+    title = "Search Routes"
 
     difficultySystemValues = pipe.fetchRatingSystemDifficulties()
     difficultySystemValues[""] = []
@@ -181,12 +181,13 @@ def displayFilteredRoutes():
 
     return render_template(
         "filtered-routes.html",
+        title="Selected Routes",
         routes=routes
     )
 
 @app.route("/textual-similarity")
 def textualSimilarity():
-    title = "Select Filtering Criteria"
+    title = "Textual Similarity"
 
     difficultySystemValues = pipe.fetchRatingSystemDifficulties()
     difficultySystemValues[""] = []
@@ -310,13 +311,14 @@ def displayTextuallySimilarRoutes():
 
     return render_template(
         "textually-similar-routes.html",
+        title="Similar Routes",
         routes=routes
     )
 
 
 @app.route("/user-similarity")
 def userSimilarity():
-    title = "Select Filtering Criteria"
+    title = "User Similarity"
 
     difficultySystemValues = pipe.fetchRatingSystemDifficulties()
     difficultySystemValues[""] = []
@@ -435,13 +437,14 @@ def displayUserSimilarRoutes():
 
     return render_template(
         "user-similar-routes.html",
+        title="Similar Routes",
         routes=routes
     )
 
 
 @app.route("/item-similarity")
 def itemSimilarity():
-    title = "Select Filtering Criteria"
+    title = "Route Similarity"
 
     difficultySystemValues = pipe.fetchRatingSystemDifficulties()
     difficultySystemValues[""] = []
@@ -561,12 +564,13 @@ def displayItemSimilarRoutes():
 
     return render_template(
         "item-similar-routes.html",
+        title="Similar Routes",
         routes=routes
     )
 
 
 def main():
-    app.run(host="0.0.0.0")
+    app.run(debug=False, host="0.0.0.0")
 
 
 if __name__ == "__main__":
