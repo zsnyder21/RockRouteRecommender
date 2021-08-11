@@ -345,7 +345,7 @@ class RoutePipeline(object):
             routeDifficultyPattern = (routeDifficultyLow or routeDifficultyHigh).upper()
 
             # Determine what types of routes we are looking for difficulty on
-            if re.search(pattern=r"(5\.\d{1,2}|3rd|4th|5th|Easy 5th)", string=routeDifficultyPattern):
+            if re.search(pattern=r"(5\.\d{1,2}|3rd|4th|5th|Easy 5th)".upper(), string=routeDifficultyPattern):
                 ratingSystem = "YDS"
             elif re.search(pattern=r"(V\d{1,2}|V-easy)", string=routeDifficultyPattern):
                 ratingSystem = "V"
