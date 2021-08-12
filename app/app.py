@@ -52,6 +52,7 @@ routeSimilarityRecommender = RouteSimilarityRecommender(
     geopyUsername="zsnyder21"
 )
 
+
 @app.route("/")
 def index():
     title = "Route Recommender"
@@ -196,6 +197,7 @@ def displayFilteredRoutes():
         routes=routes
     )
 
+
 @app.route("/textual-similarity")
 def textualSimilarity():
     title = "Textual Similarity"
@@ -204,6 +206,7 @@ def textualSimilarity():
     difficultySystemValues[""] = []
 
     return render_template("textual-similarity.html", title=title, ratingSystems=difficultySystemValues)
+
 
 @app.route("/textually-similar-routes", methods=["POST"])
 def displayTextuallySimilarRoutes():
@@ -358,6 +361,7 @@ def userSimilarity():
 
     return render_template("user-similarity.html", title=title, ratingSystems=difficultySystemValues)
 
+
 @app.route("/user-similar-routes", methods=["POST"])
 def displayUserSimilarRoutes():
     userId = request.form.get(key="UserId")
@@ -505,6 +509,7 @@ def itemSimilarity():
     difficultySystemValues[""] = []
 
     return render_template("item-similarity.html", title=title, ratingSystems=difficultySystemValues)
+
 
 @app.route("/item-similar-routes", methods=["POST"])
 def displayItemSimilarRoutes():
