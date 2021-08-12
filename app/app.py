@@ -634,7 +634,7 @@ def displayItemSimilarRoutes():
         return render_template("item-similarity.html",
                                title=title,
                                ratingSystems=difficultySystemValues,
-                               errorMessage="Please enter a route to compare to.")
+                               errorMessage="Please enter some filtering criteria.")
 
     routes = routeSimilarityRecommender.recommendRoutes(
         n=20,
@@ -652,7 +652,7 @@ def displayItemSimilarRoutes():
 
 
 def main():
-    app.run(debug=False, host="0.0.0.0", )
+    app.run(debug=False, host="0.0.0.0", port=8080)
 
 
 if __name__ == "__main__":
