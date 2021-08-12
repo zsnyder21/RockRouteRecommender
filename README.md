@@ -98,7 +98,7 @@ recommendation is as follows:
 
 The input route was 
 <a href="https://www.mountainproject.com/route/105874590/separate-reality" target="_blank" rel="noopener noreferrer">Separate Reality</a>,
-a steep roof crack in Yosemite Valley, CA. I am interested in routes similar to this in Edlorado Canyon State Park, CO.
+a steep roof crack in Yosemite Valley, CA. I am interested in routes similar to this in Eldorado Canyon State Park, CO.
 One of the top recommendations I was given was
 <a href="https://www.mountainproject.com/route/105751180/whiplash" target="_blank" rel="noopener noreferrer">Whiplash</a>.
 Both of these climbs ascend roof cracks, indicating that the recommendation engine provides sensible, if not
