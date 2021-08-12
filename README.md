@@ -33,7 +33,7 @@ haven't yet been on. The goal of this project is to provide these recommendation
 The data that I used was scraped from MountainProject in June 2021, so data added/updated there after this date will not
 be reflected in my dataset. The data consists of nearly 250k routes, 70k users, and 2.7M explicit ratings. The details
 regarding how I scraped, cleaned, and exported the data can be found in this
-[repository](https://github.com/zsnyder21/MountainProjectScraper).
+<a href="https://github.com/zsnyder21/MountainProjectScraper" target="_blank" rel="noopener noreferrer">repository</a>.
 
 Routes are rated on a scale from 0 to 4 on MountainProject. Below we see a distribution of route ratings indicating that
 most routes are rated favorably.
@@ -96,11 +96,14 @@ that k=50 is the ideal number of neighbors to use for this model.
 As I mentioned above, there is not a good metric to score this recommendation engine. Nonetheless, an example of a
 recommendation is as follows:
 
-The input route was [Separate Reality](https://www.mountainproject.com/route/105874590/separate-reality), a steep roof
-crack in Yosemite Valley, CA. I am interested in routes similar to this in Edlorado Canyon State Park, CO. One of the top
-recommendations I was given was [Whiplash](https://www.mountainproject.com/route/105751180/whiplash). Both of these
-climbs ascend roof cracks, indicating that the recommendation engine provides sensible, if not quantifiable, results. An
-added bonus of this model is that it is the fastest of the three models to draw predictions from.
+The input route was 
+<a href="https://www.mountainproject.com/route/105874590/separate-reality" target="_blank" rel="noopener noreferrer">Separate Reality</a>,
+a steep roof crack in Yosemite Valley, CA. I am interested in routes similar to this in Edlorado Canyon State Park, CO.
+One of the top recommendations I was given was
+<a href="https://www.mountainproject.com/route/105751180/whiplash" target="_blank" rel="noopener noreferrer">Whiplash</a>.
+Both of these climbs ascend roof cracks, indicating that the recommendation engine provides sensible, if not
+quantifiable, results. An added bonus of this model is that it is the fastest of the three models to draw predictions
+from.
 
 ### Matrix Factorization Recommender
 The Matrix Factorization recommender gets an RMSE of 0.698. This model is the slowest of the three models. This model is
