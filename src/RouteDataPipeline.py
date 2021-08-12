@@ -342,24 +342,25 @@ class RoutePipeline(object):
         if any(keyword in keys for keyword in {"routedifficultylow", "routedifficultyhigh"}):
             routeDifficultyLow = kwargs["routedifficultylow"] if "routedifficultylow" in keys else None
             routeDifficultyHigh = kwargs["routedifficultyhigh"] if "routedifficultyhigh" in keys else None
-            routeDifficultyPattern = (routeDifficultyLow or routeDifficultyHigh).upper()
+            routeDifficultyPattern = (routeDifficultyLow or routeDifficultyHigh)
+            routeDifficultyPatterns = self.fetchRatingSystemDifficulties()
 
             # Determine what types of routes we are looking for difficulty on
-            if re.search(pattern=r"(5\.\d{1,2}|3rd|4th|5th|Easy 5th)".upper(), string=routeDifficultyPattern):
+            if routeDifficultyPattern in routeDifficultyPatterns["Yosemite Decimal"]:
                 ratingSystem = "YDS"
-            elif re.search(pattern=r"(V\d{1,2}|V-easy)", string=routeDifficultyPattern):
+            elif routeDifficultyPattern in routeDifficultyPatterns["V Scale"]:
                 ratingSystem = "V"
-            elif re.search(pattern=r"WI\d{1,2}", string=routeDifficultyPattern):
+            elif routeDifficultyPattern in routeDifficultyPatterns["Winter Ice"]:
                 ratingSystem = "WI"
-            elif re.search(pattern=r"AI\d{1,2}", string=routeDifficultyPattern):
+            elif routeDifficultyPattern in routeDifficultyPatterns["Alpine Ice"]:
                 ratingSystem = "AI"
-            elif re.search(pattern=r"M\d{1,2}", string=routeDifficultyPattern):
+            elif routeDifficultyPattern in routeDifficultyPatterns["Mixed"]:
                 ratingSystem = "M"
-            elif re.search(pattern=r"Snow".upper(), string=routeDifficultyPattern):
+            elif routeDifficultyPattern in routeDifficultyPatterns["Snow"]:
                 ratingSystem = "Snow"
-            elif re.search(pattern=r"A\d", string=routeDifficultyPattern):
+            elif routeDifficultyPattern in routeDifficultyPatterns["Aid"]:
                 ratingSystem = "A"
-            elif re.search(pattern=r"C\d", string=routeDifficultyPattern):
+            elif routeDifficultyPattern in routeDifficultyPatterns["Clean Aid"]:
                 ratingSystem = "C"
             else:
                 raise ValueError(f"Could not determine what difficulty metric to use based on input "

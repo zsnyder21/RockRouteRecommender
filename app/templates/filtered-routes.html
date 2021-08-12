@@ -80,13 +80,16 @@ border:1px solid #000000;
             <th>Pitches</th>
             <th>Average Rating</th>
             <th>Rating Count</th>
-            <th>URL</th>
           </tr>
         </thead>
         <tbody>
         {% for route in routes %}
           <tr>
-            <td style="text-align: center; width: 400px">{{route["RouteName"]}}</td>
+            <td style="text-align: center; width: 400px">
+              <a href="{{route['URL']}}" target="_blank" rel="noopener noreferrer">
+                <strong>{{route["RouteName"]}}</strong>
+              </a>
+            </td>
             <td style="text-align: center; width: 100px">{{(route["Difficulty_YDS"] or "") + " " + (route["Difficulty_ADL"] or "")}}</td>
             <td style="text-align: center; width: 250px">{{route["Type"]}}</td>
             <td style="text-align: center; width: 100px">{{route["Severity"] or ""}}</td>
@@ -94,11 +97,6 @@ border:1px solid #000000;
             <td style="text-align: center; width: 200px">{{route["Pitches"] or ""}}</td>
             <td style="text-align: center; width: 200px">{{route["AverageRating"] or ""}}</td>
             <td style="text-align: center; width: 200px">{{route["VoteCount"] or ""}}</td>
-            <td style="text-align: center; width: 300px">
-              <a href="{{route['URL']}}" target="_blank" rel="noopener noreferrer">
-                {{route["URL"]}}
-              </a>
-            </td>
           </tr>
         {% endfor %}
         </tbody>
