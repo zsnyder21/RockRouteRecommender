@@ -53,11 +53,11 @@
       <form action="{{url_for('displayItemSimilarRoutes')}}" method="POST">
         <div class="form-group">
           <label for="RouteURL">
-            <strong>Reference Route URL</strong>
+            <strong>Route URL</strong>
           </label>
 
           <input type="text" class="form-control" id="RouteURL" aria-describedby="textHelp"
-          placeholder="Route URL (Required)" name="RouteURL" style="width: 469px; display: inline-block;">
+          placeholder="Route URL (Required)" name="RouteURL" style="width: 425px; display: inline-block;">
         </div>
 
         <br/>
@@ -136,7 +136,7 @@
 
         <div class="form-group">
           <label for="form-select">
-            <strong>Route Difficulty</strong>
+            <strong>Difficulty</strong>
           </label>
 
           <select id="RatingSystem" class="form-control" name="RatingSystem" style="width: 175px; display: inline-block;">
@@ -153,7 +153,7 @@
 
         <div class="form-group">
           <label for="ParentAreaName">
-            <strong>Area Name</strong>
+            <strong>Area</strong>
           </label>
 
           <input type="text" class="form-control" id="ParentAreaName" aria-describedby="textHelp"
@@ -172,21 +172,21 @@
 
           &emsp;
 
-          <label for="Height">
+          <label for="Height" style="position: relative; left:-10px;">
             <strong>Pitch Count</strong>
           </label>
 
           <input type="text" class="form-control" id="Pitches" aria-describedby="textHelp"
-          placeholder="Pitches" name="Pitches" pattern="[0-9]+[\+\-]?" style="width: 75px; display: inline-block;">
+          placeholder="Pitches" name="Pitches" pattern="[0-9]+[\+\-]?" style="position: relative; left: -10px; width: 75px; display: inline-block;">
 
           &emsp;
 
-          <label for="Grade">
+          <label for="Grade" style="position: relative; left: -18px;">
             <strong>Grade</strong>
           </label>
 
           <input type="text" class="form-control" id="Grade" aria-describedby="textHelp"
-          placeholder="Grade" name="Grade" pattern="[0-9]+[\+\-]?" style="width: 75px; display: inline-block;">
+          placeholder="Grade" name="Grade" pattern="[0-9]+[\+\-]?" style="position: relative; left: -18px; width: 75px; display: inline-block;">
         </div>
 
         <br/>
@@ -201,11 +201,11 @@
 
           &emsp;
 
-          <label for="Severity">
+          <label for="Severity" style="position: relative; left:103px;">
             <strong>Max Severity</strong>
           </label>
 
-          <select id="Severity" class="form-control" name="Severity" style="width: 80px; display: inline-block;">
+          <select id="Severity" class="form-control" name="Severity" style="position: relative; left: 103px; width: 75px; display: inline-block;">
             <option selected></option>
             <option>G</option>
             <option>PG</option>
@@ -227,12 +227,12 @@
 
           &emsp;
 
-          <label for="RatingCount">
+          <label for="RatingCount" style="position: relative; left: 44px">
             <strong>Rating Count</strong>
           </label>
 
           <input type="text" class="form-control" id="RatingCount" aria-describedby="textHelp"
-          placeholder="# Ratings " name="RatingCount" pattern="[0-9]+[\+\-]?" style="width: 100px; display: inline-block;">
+          placeholder="# Ratings " name="RatingCount" pattern="[0-9]+[\+\-]?" style="position: relative; left: 44px; width: 100px; display: inline-block;">
         </div>
 
         <br/>
@@ -243,7 +243,7 @@
           </label>
 
           <input type="text" class="form-control" id="City" aria-describedby="textHelp"
-          placeholder="City" name="City" style="width: 200px; display: inline-block;">
+          placeholder="City" name="City" style="width: 162px; display: inline-block;">
 
           <input type="text" class="form-control" id="State" aria-describedby="textHelp"
           placeholder="State" name="State" style="width: 100px; display: inline-block;">
@@ -260,7 +260,6 @@
 
         <br/>
         <button type="submit" class="btn btn-secondary">Submit</button>
-
 
       </form>
     </div>
