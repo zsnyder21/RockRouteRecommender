@@ -45,7 +45,15 @@
 <div class="main">
   <div class="starter-template">
     <div class="container">
+
       <h2>Search Routes</h2>
+
+      {% if errorMessage %}
+      <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <strong>{{errorMessage}}</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+      {% endif %}
 
         <br/>
 
@@ -56,68 +64,95 @@
           </strong>
           <br/>
 
-          <div class="form-check form-check-inline">
-            <input class="form-check-input" type="checkbox" value="Sport" id="SportCheck" name="SportCheck">
-            <label class="form-check-label" for="SportCheck" name="SportCheckLabel">
-              Sport
-            </label>
-          </div>
-
-          <div class="form-check form-check-inline">
-            <input class="form-check-input" type="checkbox" value="Trad" id="TradCheck" name="TradCheck">
-            <label class="form-check-label" for="TradCheck" name="TradCheckLabel">
-              Trad
-            </label>
-          </div>
-
-          <div class="form-check form-check-inline">
-            <input class="form-check-input" type="checkbox" value="Boulder" id="BoulderCheck" name="BoulderCheck">
-            <label class="form-check-label" for="BoulderCheck" name="BoulderCheckLabel">
-              Boulder
-            </label>
-          </div>
-
-          <div class="form-check form-check-inline">
-            <input class="form-check-input" type="checkbox" value="Aid" id="AidCheck" name="AidCheck">
-            <label class="form-check-label" for="AidCheck" name="AidCheckLabel">
-              Aid
-            </label>
-          </div>
-
-          <div class="form-check form-check-inline">
-            <input class="form-check-input" type="checkbox" value="Alpine" id="AlpineCheck" name="AlpineCheck">
-            <label class="form-check-label" for="AlpineCheck" name="AlpineCheckLabel">
-              Alpine
-            </label>
-          </div>
-
-          <div class="form-check form-check-inline">
-            <input class="form-check-input" type="checkbox" value="Snow" id="SnowCheck" name="SnowCheck">
-            <label class="form-check-label" for="SnowCheck" name="SnowCheckLabel">
-              Snow
-            </label>
-          </div>
-
-          <div class="form-check form-check-inline">
-            <input class="form-check-input" type="checkbox" value="Ice" id="IceCheck" name="IceCheck">
-            <label class="form-check-label" for="IceCheck" name="IceCheckLabel">
-              Ice
-            </label>
-          </div>
-
-          <div class="form-check form-check-inline">
-            <input class="form-check-input" type="checkbox" value="Mixed" id="MixedCheck" name="MixedCheck">
-            <label class="form-check-label" for="MixedCheck" name="MixedCheckLabel">
-              Mixed
-            </label>
-          </div>
-
-          <div class="form-check form-check-inline">
-            <input class="form-check-input" type="checkbox" value="Top Rope" id="TopRopeCheck" name="TopRopeCheck">
-            <label class="form-check-label" for="TopRopeCheck" name="TopRopeCheckLabel">
-              Top Rope
-            </label>
-          </div>
+          <table>
+            <thead>
+              <tr>
+                <td/>
+                <td/>
+                <td/>
+                <td/>
+                <td/>
+              </tr>
+            </thead>
+            <body>
+              <tr>
+                <td>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" value="Sport" id="SportCheck" name="SportCheck">
+                    <label class="form-check-label" for="SportCheck" name="SportCheckLabel">
+                      Sport
+                    </label>
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" value="Trad" id="TradCheck" name="TradCheck">
+                    <label class="form-check-label" for="TradCheck" name="TradCheckLabel">
+                      Trad
+                    </label>
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" value="Boulder" id="BoulderCheck" name="BoulderCheck">
+                    <label class="form-check-label" for="BoulderCheck" name="BoulderCheckLabel">
+                      Boulder
+                    </label>
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" value="Aid" id="AidCheck" name="AidCheck">
+                    <label class="form-check-label" for="AidCheck" name="AidCheckLabel">
+                      Aid
+                    </label>
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" value="Top Rope" id="TopRopeCheck" name="TopRopeCheck">
+                    <label class="form-check-label" for="TopRopeCheck" name="TopRopeCheckLabel">
+                      Top Rope
+                    </label>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" value="Alpine" id="AlpineCheck" name="AlpineCheck">
+                    <label class="form-check-label" for="AlpineCheck" name="AlpineCheckLabel">
+                      Alpine
+                    </label>
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" value="Snow" id="SnowCheck" name="SnowCheck">
+                    <label class="form-check-label" for="SnowCheck" name="SnowCheckLabel">
+                      Snow
+                    </label>
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" value="Ice" id="IceCheck" name="IceCheck">
+                    <label class="form-check-label" for="IceCheck" name="IceCheckLabel">
+                      Ice
+                    </label>
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" value="Mixed" id="MixedCheck" name="MixedCheck">
+                    <label class="form-check-label" for="MixedCheck" name="MixedCheckLabel">
+                      Mixed
+                    </label>
+                  </div>
+                </td>
+              </tr>
+            </body>
+          </table>
         </div>
 
         <br/>

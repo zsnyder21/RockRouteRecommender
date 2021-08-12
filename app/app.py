@@ -177,6 +177,17 @@ def displayFilteredRoutes():
         parameters["radius"] = radius
         parameters["distanceUnits"] = distanceUnits
 
+    if not parameters:
+        title = "Search Routes"
+
+        difficultySystemValues = pipe.fetchRatingSystemDifficulties()
+        difficultySystemValues[""] = []
+
+        return render_template("select-routes.html",
+                               title=title,
+                               ratingSystems=difficultySystemValues,
+                               errorMessage="Please select some filtering criteria.")
+
     routes = pipe.fetchRoutes(**parameters)
 
     return render_template(
@@ -198,6 +209,17 @@ def textualSimilarity():
 def displayTextuallySimilarRoutes():
     routeURL = request.form.get(key="Keywords")
     keywords = ""
+
+    if not routeURL:
+        title = "Textual Similarity"
+
+        difficultySystemValues = pipe.fetchRatingSystemDifficulties()
+        difficultySystemValues[""] = []
+
+        return render_template("textual-similarity.html",
+                               title=title,
+                               ratingSystems=difficultySystemValues,
+                               errorMessage="Please enter a route or keywords to compare to.")
 
     if re.search(pattern=r"\d+", string=str(routeURL)):
         keywordRecommender.fetchRouteToCompare(routeURL=routeURL)
@@ -302,6 +324,17 @@ def displayTextuallySimilarRoutes():
         parameters["radius"] = radius
         parameters["distanceUnits"] = distanceUnits
 
+    if not parameters:
+        title = "Textual Similarity"
+
+        difficultySystemValues = pipe.fetchRatingSystemDifficulties()
+        difficultySystemValues[""] = []
+
+        return render_template("textual-similarity.html",
+                               title=title,
+                               ratingSystems=difficultySystemValues,
+                               errorMessage="Please select some filtering criteria.")
+
     keywordRecommender.similarityMatrix = None
     keywordRecommender.fetchRoutesToRecommend(**parameters)
 
@@ -328,6 +361,17 @@ def userSimilarity():
 @app.route("/user-similar-routes", methods=["POST"])
 def displayUserSimilarRoutes():
     userId = request.form.get(key="UserId")
+
+    if not userId:
+        title = "User Similarity"
+
+        difficultySystemValues = pipe.fetchRatingSystemDifficulties()
+        difficultySystemValues[""] = []
+
+        return render_template("user-similarity.html",
+                               title=title,
+                               ratingSystems=difficultySystemValues,
+                               errorMessage="Please enter a UserId.")
 
     parameters = dict()
 
@@ -426,9 +470,20 @@ def displayUserSimilarRoutes():
         parameters["radius"] = radius
         parameters["distanceUnits"] = distanceUnits
 
+    if not parameters:
+        title = "User Similarity"
+
+        difficultySystemValues = pipe.fetchRatingSystemDifficulties()
+        difficultySystemValues[""] = []
+
+        return render_template("user-similarity.html",
+                               title=title,
+                               ratingSystems=difficultySystemValues,
+                               errorMessage="Please enter some filtering criteria.")
+
     routes = userRecommender.recommendRoutes(
         n=20,
-        userId=200552300,
+        userId=userId,
         **parameters
     )
 
@@ -454,6 +509,17 @@ def itemSimilarity():
 @app.route("/item-similar-routes", methods=["POST"])
 def displayItemSimilarRoutes():
     routeURL = request.form.get(key="RouteURL")
+
+    if not routeURL:
+        title = "Route Similarity"
+
+        difficultySystemValues = pipe.fetchRatingSystemDifficulties()
+        difficultySystemValues[""] = []
+
+        return render_template("item-similarity.html",
+                               title=title,
+                               ratingSystems=difficultySystemValues,
+                               errorMessage="Please enter a route to compare to.")
 
     routeSimilarityRecommender.fetchRouteToCompare(routeURL=routeURL)
 
@@ -553,6 +619,17 @@ def displayItemSimilarRoutes():
     if radius:
         parameters["radius"] = radius
         parameters["distanceUnits"] = distanceUnits
+
+    if not parameters:
+        title = "Route Similarity"
+
+        difficultySystemValues = pipe.fetchRatingSystemDifficulties()
+        difficultySystemValues[""] = []
+
+        return render_template("item-similarity.html",
+                               title=title,
+                               ratingSystems=difficultySystemValues,
+                               errorMessage="Please enter a route to compare to.")
 
     routes = routeSimilarityRecommender.recommendRoutes(
         n=20,
