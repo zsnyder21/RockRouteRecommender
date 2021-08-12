@@ -35,6 +35,11 @@ be reflected in my dataset. The data consists of nearly 250k routes, 70k users, 
 regarding how I scraped, cleaned, and exported the data can be found in this
 [repository](https://github.com/zsnyder21/MountainProjectScraper).
 
+Routes are rated on a scale from 0 to 4 on MountainProject. Below we see a distribution of route ratings indicating that
+most routes are rated favorably.
+
+<img src="./img/Frequency_of_Ratings.png">
+
 ## The Recommendation Engines
 ### Overview
 Three distinct recommendation engines were created in order to fill in gaps in user coverage and appeal to a wider
