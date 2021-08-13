@@ -3,7 +3,6 @@ import pandas as pd
 import os
 import pyspark as ps
 import pickle
-import tempfile
 
 from dotenv import load_dotenv
 
