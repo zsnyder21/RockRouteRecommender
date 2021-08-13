@@ -118,10 +118,12 @@ tool was created that (in my opinion) far surpasses the functionality present on
 capabilities that this pipeline posesses allows for far more control over what routes you are searching for.
 
 ## Application
-I took these recommendation systems and deployed them via a Flask application. You can interact with it
+I took the text similarity recommendation system and search engine and deployed them via a Flask application. You can
+interact with it
 <a href="http://3.136.157.114:8080/" target="_blank" rel="noopener noreferrer">here</a> provided it's running
-(please email me if it's not). Note that the Matrix Factorization recommender is omitted from this site as the model and
-supporting data do not fit on my EC2 instance.
+(please email me if it's not). Note that the Matrix Factorization recommender and KNN recommender are omitted from this 
+site as the model and supporting data do not fit within the available resources on my EC2 instance. If you'd like to see
+them in action, please don't hesitate to get in contact with me!
 
 <img src="./img/Flask_Homepage.PNG">
 
