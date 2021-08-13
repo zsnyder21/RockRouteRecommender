@@ -487,7 +487,7 @@ def displayUserSimilarRoutes():
 
     routes = userRecommender.recommendRoutes(
         n=20,
-        userId=userId,
+        userId=int(userId),
         **parameters
     )
 
