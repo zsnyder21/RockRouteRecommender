@@ -4,14 +4,10 @@ import os
 import numpy as np
 
 from dotenv import load_dotenv
-from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-from nltk.stem.porter import PorterStemmer
-from nltk.stem.snowball import SnowballStemmer
 from nltk.tokenize import RegexpTokenizer
-from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize, sent_tokenize
 
 from src.RouteDataPipeline import RoutePipeline
 
@@ -162,11 +158,9 @@ class RouteContentRecommender(object):
         :param text: Text to be tokenized
         :return: List of tokenized text
         """
-        stopWords = set(stopwords.words("english"))
         tokenizer = RegexpTokenizer(pattern=r"[\w']+")
-        tokens = tokenizer.tokenize(text)
+        return tokenizer.tokenize(text)
 
-        return [token for token in tokens if token not in stopWords]
 
     def fetchRouteToCompare(self, routeURL: str) -> dict:
         """

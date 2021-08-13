@@ -47,6 +47,7 @@
   <div class="starter-template">
     <div class="container">
       <h2>Select Recommendation Criteria</h2>
+      <h4>URL and one of Area or Proximity is required</h4>
 
       {% if errorMessage %}
       <div class="alert alert-warning alert-dismissible fade show" role="alert">
@@ -257,7 +258,7 @@
           </label>
 
           <input type="text" class="form-control" id="AverageRating" aria-describedby="textHelp"
-          placeholder="Avg Rating" name="AverageRating" pattern="(?:[0-3]\.?[0-9]*[\+\-]?)|(?:[4]\.?[0]?[\-]?)" style="width: 115px; display: inline-block;">
+          placeholder="Avg Rating" name="AverageRating" pattern="(?:[0-3]\.?[0-9]*[\+\-]?)|(?:[4]\.?[0]?[\-]?)" title="Average Rating must be less than or equal to 4" style="width: 115px; display: inline-block;">
 
           &emsp;
 
@@ -283,7 +284,7 @@
           placeholder="State" name="State" style="width: 100px; display: inline-block;">
 
           <input type="text" class="form-control" id="Distance" aria-describedby="textHelp"
-          placeholder="Distance" name="Distance" pattern="[0-9]+\.?[0-9]*[\+\-]?" style="width: 100px; display: inline-block;">
+          placeholder="Distance" name="Distance" pattern="[0-9]{1,3}(\.[0-9]*)?[\+\-]?" title="Distance must be less than 1000" style="width: 100px; display: inline-block;">
 
           <select id="DistanceUnits" class="form-control" name="DistanceUnits" style="width: 55px; display: inline-block;">
             <option selected>mi</option>

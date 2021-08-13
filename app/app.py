@@ -174,11 +174,11 @@ def displayFilteredRoutes():
             parameters["city"] = city
             parameters["state"] = state
 
-    if radius:
-        parameters["radius"] = radius
-        parameters["distanceUnits"] = distanceUnits
+        if radius:
+            parameters["radius"] = radius
+            parameters["distanceUnits"] = distanceUnits
 
-    if not parameters:
+    if not parentAreaName and not (city and state and radius):
         title = "Search Routes"
 
         difficultySystemValues = pipe.fetchRatingSystemDifficulties()
@@ -187,7 +187,7 @@ def displayFilteredRoutes():
         return render_template("select-routes.html",
                                title=title,
                                ratingSystems=difficultySystemValues,
-                               errorMessage="Please select some filtering criteria.")
+                               errorMessage="Please enter required filtering criteria.")
 
     routes = pipe.fetchRoutes(**parameters)
 
@@ -305,7 +305,7 @@ def displayTextuallySimilarRoutes():
     radius = request.form.get(key="Distance")
     distanceUnits = request.form.get(key="DistanceUnits")
 
-    if city and state:
+    if city and state and radius:
         try:
             float(city)
             float(state)
@@ -323,11 +323,10 @@ def displayTextuallySimilarRoutes():
             parameters["city"] = city
             parameters["state"] = state
 
-    if radius:
         parameters["radius"] = radius
         parameters["distanceUnits"] = distanceUnits
 
-    if not parameters:
+    if not parentAreaName and not (city and state and radius):
         title = "Textual Similarity"
 
         difficultySystemValues = pipe.fetchRatingSystemDifficulties()
@@ -336,7 +335,7 @@ def displayTextuallySimilarRoutes():
         return render_template("textual-similarity.html",
                                title=title,
                                ratingSystems=difficultySystemValues,
-                               errorMessage="Please select some filtering criteria.")
+                               errorMessage="Please enter required filtering criteria.")
 
     keywordRecommender.similarityMatrix = None
     keywordRecommender.fetchRoutesToRecommend(**parameters)
@@ -452,7 +451,7 @@ def displayUserSimilarRoutes():
     radius = request.form.get(key="Distance")
     distanceUnits = request.form.get(key="DistanceUnits")
 
-    if city and state:
+    if city and state and radius:
         try:
             float(city)
             float(state)
@@ -470,11 +469,10 @@ def displayUserSimilarRoutes():
             parameters["city"] = city
             parameters["state"] = state
 
-    if radius:
         parameters["radius"] = radius
         parameters["distanceUnits"] = distanceUnits
 
-    if not parameters:
+    if not parentAreaName and not (city and state and radius):
         title = "User Similarity"
 
         difficultySystemValues = pipe.fetchRatingSystemDifficulties()
@@ -483,7 +481,7 @@ def displayUserSimilarRoutes():
         return render_template("user-similarity.html",
                                title=title,
                                ratingSystems=difficultySystemValues,
-                               errorMessage="Please enter some filtering criteria.")
+                               errorMessage="Please enter required filtering criteria.")
 
     routes = userRecommender.recommendRoutes(
         n=20,
@@ -603,7 +601,7 @@ def displayItemSimilarRoutes():
     radius = request.form.get(key="Distance")
     distanceUnits = request.form.get(key="DistanceUnits")
 
-    if city and state:
+    if city and state and radius:
         try:
             float(city)
             float(state)
@@ -621,7 +619,6 @@ def displayItemSimilarRoutes():
             parameters["city"] = city
             parameters["state"] = state
 
-    if radius:
         parameters["radius"] = radius
         parameters["distanceUnits"] = distanceUnits
 
