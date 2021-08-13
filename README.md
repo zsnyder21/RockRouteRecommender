@@ -119,7 +119,7 @@ capabilities that this pipeline posesses allows for far more control over what r
 
 ## Application
 I took these recommendation systems and deployed them via a Flask application. You can interact with it
-<a href="http://18.217.2.233:8080/" target="_blank" rel="noopener noreferrer">here</a> provided it's running
+<a href="http://3.136.157.114:8080/" target="_blank" rel="noopener noreferrer">here</a> provided it's running
 (please email me if it's not). Note that the Matrix Factorization recommender is omitted from this site as the model and
 supporting data do not fit on my EC2 instance.
 
