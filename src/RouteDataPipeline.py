@@ -794,11 +794,15 @@ class RoutePipeline(object):
                     r.FirstFreeAscentYear,
                     r.AverageRating,
                     r.VoteCount,
-                    r.URL,
+                    r.URL as RouteURL,
+                    a0.AreaName,
+                    a0.URL as AreaURL,
                     coalesce(string_agg(c.CommentBody, chr(10)||chr(13)||chr(10)||chr(13)), '') as Comments
                 from Routes r
                 left join RouteComments c
                     on c.RouteId = r.RouteId
+                inner join Areas a0
+                    on a0.AreaId = r.AreaId
                 {joinClause}
                 {whereClause}
                 group by r.RouteId,
@@ -820,7 +824,9 @@ class RoutePipeline(object):
                     r.FirstFreeAscentYear,
                     r.AverageRating,
                     r.VoteCount,
-                    r.URL
+                    r.URL,
+                    a0.AreaName,
+                    a0.URL
                 order by r.RouteId;
             """
         else:
@@ -854,13 +860,17 @@ class RoutePipeline(object):
                     r.FirstFreeAscentYear,
                     r.AverageRating,
                     r.VoteCount,
-                    r.URL,
+                    r.URL as RouteURL,
+                    a0.AreaName,
+                    a0.URL as AreaURL,
                     coalesce(string_agg(c.CommentBody, chr(10)||chr(13)||chr(10)||chr(13)), '') as Comments
                 from Routes r
                 inner join SubAreas s
                     on s.AreaId = r.AreaId
                 left join RouteComments c
                     on c.RouteId = r.RouteId
+                inner join Areas a0
+                    on a0.AreaId = r.AreaId
                 {joinClause}
                 {whereClause}
                 group by r.RouteId,
@@ -882,7 +892,9 @@ class RoutePipeline(object):
                     r.FirstFreeAscentYear,
                     r.AverageRating,
                     r.VoteCount,
-                    r.URL
+                    r.URL,
+                    a0.AreaName,
+                    a0.URL
                 order by r.RouteId;
             """
         # print(query)
@@ -911,7 +923,9 @@ class RoutePipeline(object):
             "FirstFreeAscentYear",
             "AverageRating",
             "VoteCount",
-            "URL",
+            "RouteURL",
+            "AreaName",
+            "AreaURL",
             "Comments"
         ]
         fieldCount = len(fields)
@@ -1094,6 +1108,8 @@ if __name__ == "__main__":
         # routeDifficultyLow="5.8",
         # routeDifficultyHigh="5.12a",
         # type="Sport, Trad",
-        parentAreaName="Colorado",
+        parentAreaName="Cob Rock",
         voteCount="20+"
     )
+
+    print(routesToRecommend[0])

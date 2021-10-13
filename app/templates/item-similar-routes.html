@@ -75,6 +75,7 @@ border:1px solid #000000;
         <thead>
           <tr style="text-align: center">
             <th>Route Name</th>
+            <th>Area Name </th>
             <th>Difficulty</th>
             <th>Type</th>
             <th>Severity</th>
@@ -90,6 +91,11 @@ border:1px solid #000000;
             <td style="text-align: center; width: 400px">
               <a href="{{route['URL']}}" target="_blank" rel="noopener noreferrer">
                 <strong>{{route["RouteName"]}}</strong>
+              </a>
+            </td>
+            <td style="text-align: center; width: 400px">
+              <a href="{{route['AreaURL']}}" target="_blank" rel="noopener noreferrer">
+                <strong>{{route["AreaName"]}}</strong>
               </a>
             </td>
             <td style="text-align: center; width: 100px">{{(route["Difficulty_YDS"] or "") + " " + (route["Difficulty_ADL"] or "")}}</td>
