@@ -1076,12 +1076,12 @@ if __name__ == "__main__":
     load_dotenv()
 
     pipe = RoutePipeline(
-        username="postgres",
+        username=os.getenv("POSTGRESQL_USERNAME"),
         password=os.getenv("POSTGRESQL_PASSWORD"),
-        host="127.0.0.1",
-        port="5432",
-        database="MountainProject",
-        geopyUsername="zsnyder21"
+        host=os.getenv("POSTGRESQL_HOST"),
+        port=os.getenv("POSTGRESQL_PORT"),
+        database=os.getenv("POSTGRESQL_DATABASE"),
+        geopyUsername=os.getenv("GEOPY_USERAGENT")
     )
 
     routes = pipe.fetchRouteRatings(
