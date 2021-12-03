@@ -91,7 +91,7 @@ class RoutePipeline(object):
 
         return difficultySystemValues
 
-    def fetchRoutesByLatLong(self, latitude: float, longitude: str, maximumDistance: float, distanceUnits: str = "mi") -> list:
+    def fetchRoutesByLatLong(self, latitude: float, longitude: float, maximumDistance: float, distanceUnits: str = "mi") -> list:
         """
         Fetch routes within a specified distance of a supplied latitude and longitude
 
