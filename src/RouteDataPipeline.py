@@ -917,7 +917,7 @@ class RoutePipeline(object):
             """
 
         self.cursor.execute(query, queryParameters)
-        print(self.cursor.query.decode())
+        # print(self.cursor.query.decode())
 
         results = self.cursor.fetchall()
 
