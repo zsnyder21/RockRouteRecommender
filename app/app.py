@@ -15,41 +15,41 @@ load_dotenv()
 app = Flask(__name__)
 
 pipe = RoutePipeline(
-    username="postgres",
+    username=os.getenv("POSTGRESQL_USERNAME"),
     password=os.getenv("POSTGRESQL_PASSWORD"),
-    host="127.0.0.1",
-    port="5432",
-    database="MountainProject",
-    geopyUsername="zsnyder21"
+    host=os.getenv("POSTGRESQL_HOST"),
+    port=os.getenv("POSTGRESQL_PORT"),
+    database=os.getenv("POSTGRESQL_DATABASE"),
+    geopyUsername=os.getenv("GEOPY_USERAGENT")
 )
 
 keywordRecommender = RouteContentRecommender(
-    username="postgres",
+    username=os.getenv("POSTGRESQL_USERNAME"),
     password=os.getenv("POSTGRESQL_PASSWORD"),
-    host="127.0.0.1",
-    port="5432",
-    database="MountainProject",
-    geopyUsername="zsnyder21"
+    host=os.getenv("POSTGRESQL_HOST"),
+    port=os.getenv("POSTGRESQL_PORT"),
+    database=os.getenv("POSTGRESQL_DATABASE"),
+    geopyUsername=os.getenv("GEOPY_USERAGENT")
 )
 
 userRecommender = SparkALSModel(
-        username="postgres",
+        username=os.getenv("POSTGRESQL_USERNAME"),
         password=os.getenv("POSTGRESQL_PASSWORD"),
-        host="127.0.0.1",
-        port="5432",
-        database="MountainProject",
-        geopyUsername="zsnyder21"
+        host=os.getenv("POSTGRESQL_HOST"),
+        port=os.getenv("POSTGRESQL_PORT"),
+        database=os.getenv("POSTGRESQL_DATABASE"),
+        geopyUsername=os.getenv("GEOPY_USERAGENT")
     )
 
 userRecommender.load(dir="../models/SparkALS/")
 
 routeSimilarityRecommender = RouteSimilarityRecommender(
-    username="postgres",
+    username=os.getenv("POSTGRESQL_USERNAME"),
     password=os.getenv("POSTGRESQL_PASSWORD"),
-    host="127.0.0.1",
-    port="5432",
-    database="MountainProject",
-    geopyUsername="zsnyder21"
+    host=os.getenv("POSTGRESQL_HOST"),
+    port=os.getenv("POSTGRESQL_PORT"),
+    database=os.getenv("POSTGRESQL_DATABASE"),
+    geopyUsername=os.getenv("GEOPY_USERAGENT")
 )
 
 
