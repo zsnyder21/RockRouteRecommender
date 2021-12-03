@@ -265,6 +265,7 @@ class RoutePipeline(object):
         else:
             raise ValueError(f"Error: Cannot parse RouteId from specified URL ({routeURL}).")
 
+        queryParameters = {"routeId": routeId}
         query = f"""
         select  r.RouteId,
                 rr.UserId,
@@ -272,11 +273,11 @@ class RoutePipeline(object):
             from Routes r
             inner join RouteRatings rr
                 on rr.RouteId = r.RouteID
-            where r.RouteId = {routeId}
+            where r.RouteId = %(routeId)s
                 and rr.UserId is not null;
         """
 
-        self.cursor.execute(query)
+        self.cursor.execute(query, queryParameters)
         results = self.cursor.fetchall()
 
         if not results:
@@ -298,11 +299,12 @@ class RoutePipeline(object):
         :param areaName: Name of the area to find routes under
         :return: List of routes that live under the specified area
         """
+        queryParameters = {"areaName": areaName}
         query = f"""
         ; with recursive SubAreas as (
             select AreaId
                 from Areas
-                where AreaName = '{areaName}'
+                where AreaName = %(areaName)s
             union all
             select a.AreaId
                 from Areas a
@@ -315,7 +317,7 @@ class RoutePipeline(object):
                 on s.AreaId = r.AreaId
         """
 
-        self.cursor.execute(query)
+        self.cursor.execute(query, queryParameters)
         return self.cursor.fetchall()
 
     def processFilters(self, **kwargs) -> tuple:
@@ -330,10 +332,11 @@ class RoutePipeline(object):
         :return: Any necessary join clauses and where clauses to add into the SQL query as strings.
         """
         if not kwargs:
-            return "", "where true"
+            return "", "where true", None
         else:
             joinClause = ""
             whereClause = "where true "
+            queryParameters = {}
 
         kwargs = {key.lower(): value for key, value in kwargs.items()}
 
@@ -371,36 +374,39 @@ class RoutePipeline(object):
                 query = f"""
                     select DifficultyRanking
                         from DifficultyReference
-                        where Difficulty = '{routeDifficultyLow}'
-                            and RatingSystem = '{ratingSystem}'
+                        where Difficulty = %(routeDifficultyLow)s
+                            and RatingSystem = %(ratingSystem)s
                 """
             else:
                 query = f"""
                     select min(DifficultyRanking)
                         from DifficultyReference
-                        where RatingSystem = '{ratingSystem}'
+                        where RatingSystem = %(ratingSystem)s
                 """
 
-            self.cursor.execute(query)
+            self.cursor.execute(query, {"routeDifficultyLow": routeDifficultyLow, "ratingSystem": ratingSystem})
             difficultyLow = self.cursor.fetchone()[0]
 
             if routeDifficultyHigh:
                 query = f"""
                     select DifficultyRanking
                         from DifficultyReference
-                        where Difficulty = '{routeDifficultyHigh}'
-                            and RatingSystem = '{ratingSystem}'
+                        where Difficulty = %(routeDifficultyHigh)s
+                            and RatingSystem = %(ratingSystem)s
                 """
             else:
                 query = f"""
                     select max(DifficultyRanking)
                         from DifficultyReference
-                        where RatingSystem = '{ratingSystem}'
+                        where RatingSystem = %(ratingSystem)s
                 """
 
-            self.cursor.execute(query)
+            self.cursor.execute(query, {"routeDifficultyHigh": routeDifficultyHigh, "ratingSystem": ratingSystem})
             difficultyHigh = self.cursor.fetchone()[0]
 
+            queryParameters["difficultyHigh"] = difficultyHigh
+            queryParameters["difficultyLow"] = difficultyLow
+            queryParameters["ratingSystem"] = ratingSystem
             joinClause += f"""
                 left join lateral (
                     select unnest(string_to_array(coalesce(r.Difficulty_ADL, ''), ' ')) as Difficulty
@@ -419,40 +425,40 @@ class RoutePipeline(object):
                     on l.Difficulty = ref.Difficulty
             """
 
-            whereClause += f"and (ref.DifficultyRanking <= {difficultyHigh}) "
-            whereClause += f"and (ref.DifficultyRanking >= {difficultyLow}) "
-            whereClause += f"and (ref.RatingSystem = '{ratingSystem}') "
+            whereClause += f"and (ref.DifficultyRanking <= %(difficultyHigh)s) "
+            whereClause += f"and (ref.DifficultyRanking >= %(difficultyLow)s) "
+            whereClause += f"and (ref.RatingSystem = %(ratingSystem)s) "
 
         if "type" in keys:
             type = kwargs["type"].lower()
             typeWhereClause = "and (false "
 
             if "trad" in type:
-                typeWhereClause += f"or (lower(r.Type) like '%trad%' and lower(r.Type) not like '%aid%' and lower(r.Type) not like '%mixed%' and lower(r.Type) not like '%ice%' and lower(r.Type) not like '%snow%') "
+                typeWhereClause += f"or (lower(r.Type) like '%%trad%%' and lower(r.Type) not like '%%aid%%' and lower(r.Type) not like '%%mixed%%' and lower(r.Type) not like '%%ice%%' and lower(r.Type) not like '%%snow%%') "
 
             if "aid" in type:
-                typeWhereClause += f"or (lower(r.Type) like '%aid%') "
+                typeWhereClause += f"or (lower(r.Type) like '%%aid%%') "
 
             if "sport" in type:
-                typeWhereClause += f"or (lower(r.Type) like '%sport%' and lower(r.Type) not like '%trad%' and lower(r.Type) not like '%aid%' and lower(r.Type) not like '%mixed%' and lower(r.Type) not like '%ice%' and lower(r.Type) not like '%snow%') "
+                typeWhereClause += f"or (lower(r.Type) like '%%sport%%' and lower(r.Type) not like '%%trad%%' and lower(r.Type) not like '%%aid%%' and lower(r.Type) not like '%%mixed%%' and lower(r.Type) not like '%%ice%%' and lower(r.Type) not like '%%snow%%') "
 
             if "boulder" in type:
-                typeWhereClause += f"or (lower(r.Type) like '%boulder%' and lower(r.Type) not like '%trad%') "
+                typeWhereClause += f"or (lower(r.Type) like '%%boulder%%' and lower(r.Type) not like '%%trad%%') "
 
             if "top rope" in type:
-                typeWhereClause += f"or (lower(r.Type) like '%top rope%') "
+                typeWhereClause += f"or (lower(r.Type) like '%%top rope%%') "
 
             if "alpine" in type:
-                typeWhereClause += f"or (lower(r.Type) like '%alpine%') "
+                typeWhereClause += f"or (lower(r.Type) like '%%alpine%%') "
 
             if "ice" in type:
-                typeWhereClause += f"or (lower(r.Type) like '%ice%') "
+                typeWhereClause += f"or (lower(r.Type) like '%%ice%%') "
 
             if "snow" in type:
-                typeWhereClause += f"or (lower(r.Type) like '%snow%') "
+                typeWhereClause += f"or (lower(r.Type) like '%%snow%%') "
 
             if "mixed" in type:
-                typeWhereClause += f"or (lower(r.Type) like '%mixed%') "
+                typeWhereClause += f"or (lower(r.Type) like '%%mixed%%') "
 
             if typeWhereClause == "and (false ":
                 raise ValueError("Invalid route type specified. Valid types are Sport, Trad, Aid, Boulder, Top Rope, Alpine, Ice, Snow, and Mixed")
@@ -466,10 +472,10 @@ class RoutePipeline(object):
             query = f"""
                 select SeverityRanking
                     from SeverityReference
-                    where Severity = '{severityThreshold}'
+                    where Severity = %(severityThreshold)s
             """
 
-            self.cursor.execute(query)
+            self.cursor.execute(query, {"severityThreshold": severityThreshold})
 
             severity = self.cursor.fetchone()[0]
 
@@ -477,8 +483,8 @@ class RoutePipeline(object):
                 inner join SeverityReference sev
                     on sev.Severity = coalesce(r.Severity, 'G')
             """
-
-            whereClause += f"and (sev.SeverityRanking <= {severity}) "
+            queryParameters["severity"] = severity
+            whereClause += f"and (sev.SeverityRanking <= %(severity)s) "
 
         if "height" in keys:
             height = str(kwargs["height"]).lower().strip()
@@ -490,14 +496,15 @@ class RoutePipeline(object):
             height = height.strip("-").strip("+")
 
             try:
-                float(height)
+                height = float(height)
             except ValueError as e:
                 raise ValueError(f"Height is not a valid number.")
 
+            queryParameters["height"] = height
             if greaterThan:
-                whereClause += f"and (r.Height >= {height}) "
+                whereClause += f"and (r.Height >= %(height)s) "
             else:
-                whereClause += f"and (r.Height <= {height}) "
+                whereClause += f"and (r.Height <= %(height)s) "
 
         if "pitches" in keys:
             pitches = str(kwargs["pitches"]).lower().strip()
@@ -511,16 +518,17 @@ class RoutePipeline(object):
             pitches = pitches.strip("-").strip("+").strip("=")
 
             try:
-                float(pitches)
+                pitches = float(pitches)
             except ValueError as e:
                 raise ValueError(f"Pitches is not a valid number.")
 
+            queryParameters["pitches"] = pitches
             if greaterThan:
-                whereClause += f"and (r.Pitches >= {pitches}) "
+                whereClause += f"and (r.Pitches >= %(pitches)s) "
             elif greaterThan is None:
-                whereClause += f"and (r.Pitches = {pitches}) "
+                whereClause += f"and (r.Pitches = %(pitches)s) "
             else:
-                whereClause += f"and (r.Pitches <= {pitches}) "
+                whereClause += f"and (r.Pitches <= %(pitches)s) "
 
         if "grade" in keys:
             grade = str(kwargs["grade"]).lower().strip()
@@ -534,16 +542,17 @@ class RoutePipeline(object):
             grade = grade.strip("-").strip("+").strip("=")
 
             try:
-                float(grade)
+                grade = float(grade)
             except ValueError as e:
                 raise ValueError(f"Grade is not a valid number.")
 
+            queryParameters["grade"] = grade
             if greaterThan:
-                whereClause += f"and (r.Grade >= {grade}) "
+                whereClause += f"and (r.Grade >= %(grade)s) "
             elif greaterThan is None:
-                whereClause += f"and (r.Grade = {grade}) "
+                whereClause += f"and (r.Grade = %(grade)s) "
             else:
-                whereClause += f"and (r.Grade <= {grade}) "
+                whereClause += f"and (r.Grade <= %(grade)s) "
 
         if "averagerating" in keys:
             averageRating = str(kwargs["averagerating"]).lower().strip()
@@ -555,14 +564,15 @@ class RoutePipeline(object):
             averageRating = averageRating.strip("-").strip("+")
 
             try:
-                float(averageRating)
+                averageRating = float(averageRating)
             except ValueError as e:
                 raise ValueError(f"Average rating is not a valid number.")
 
+            queryParameters["averageRating"] = averageRating
             if greaterThan:
-                whereClause += f"and (r.AverageRating >= {averageRating}) "
+                whereClause += f"and (r.AverageRating >= %(averageRating)s) "
             else:
-                whereClause += f"and (r.AverageRating <= {averageRating}) "
+                whereClause += f"and (r.AverageRating <= %(averageRating)s) "
 
         if "votecount" in keys:
             voteCount = str(kwargs["votecount"]).lower().strip()
@@ -574,14 +584,15 @@ class RoutePipeline(object):
             voteCount = voteCount.strip("-").strip("+")
 
             try:
-                float(voteCount)
+                voteCount = float(voteCount)
             except ValueError as e:
                 raise ValueError(f"Vote count is not a valid number.")
 
+            queryParameters["voteCount"] = voteCount
             if greaterThan:
-                whereClause += f"and (r.Votecount >= {voteCount}) "
+                whereClause += f"and (r.Votecount >= %(voteCount)s) "
             else:
-                whereClause += f"and (r.VoteCount <= {voteCount}) "
+                whereClause += f"and (r.VoteCount <= %(voteCount)s) "
 
         if "elevation" in keys:
             elevation = str(kwargs["elevation"]).lower().strip()
@@ -593,7 +604,7 @@ class RoutePipeline(object):
             elevation = elevation.strip("-").strip("+")
 
             try:
-                float(elevation)
+                elevation = float(elevation)
             except ValueError as e:
                 raise ValueError(f"Elevation is not a valid number.")
 
@@ -602,10 +613,11 @@ class RoutePipeline(object):
                 on e.AreaId = r.AreaId
             """
 
+            queryParameters["elevation"] = elevation
             if greaterThan:
-                whereClause += f"and (e.Elevation >= {elevation}) "
+                whereClause += f"and (e.Elevation >= %(elevation)s) "
             else:
-                whereClause += f"and (e.Elevation <= {elevation}) "
+                whereClause += f"and (e.Elevation <= %(elevation)s) "
 
         if any(keyword in keys for keyword in {"city", "state", "latitude", "longitude", "radius", "proximityroute"}):
             latitude, longitude = None, None
@@ -624,14 +636,14 @@ class RoutePipeline(object):
                     raise ValueError(
                         f"Could not locate coordinates for city state combination {', '.join([city.strip(), state.strip()])}")
 
-                latitude = cityStateLocation.raw["lat"]
-                longitude = cityStateLocation.raw["lon"]
+                latitude = float(cityStateLocation.raw["lat"])
+                longitude = float(cityStateLocation.raw["lon"])
 
             if latitude is None and ("latitude" in keys or "longitude" in keys):
                 if not all(keyword in keys for keyword in {"latitude", "longitude", "radius"}):
                     raise ValueError("Error: All three of latitude, longitude, and radius must be specified.")
-                latitude = kwargs["latitude"]
-                longitude = kwargs["longitude"]
+                latitude = float(kwargs["latitude"])
+                longitude = float(kwargs["longitude"])
 
             if latitude is None and "proximityroute" in keys:
                 if not all(keyword in keys for keyword in {"proximityroute", "radius"}):
@@ -650,11 +662,12 @@ class RoutePipeline(object):
                         from Routes r
                         inner join Areas a
                             on a.AreaId = r.AreaId
-                        where r.RouteId = {routeId}
+                        where r.RouteId = %(routeId)s
+                            or a.AreaId = %(routeId)s;
                         """
 
-                self.cursor.execute(query)
-                latitude, longitude = self.cursor.fetchone()
+                self.cursor.execute(query, {"routeId": routeId})
+                latitude, longitude = map(float, self.cursor.fetchone())
 
             if latitude is None or longitude is None:
                 raise ValueError("You must specify a way to obtain latitude/longitude. "
@@ -678,31 +691,35 @@ class RoutePipeline(object):
             else:
                 earthRadius = 3958.8
 
+            queryParameters["earthRadius"] = earthRadius
+            queryParameters["latitude"] = latitude
+            queryParameters["longitude"] = longitude
             joinClause += f"""
                 inner join Areas a
                     on a.AreaId = r.AreaId
                 left join lateral (
-                    select  {earthRadius} * 2 * asin(sqrt(sin((radians(a.Latitude) - radians({latitude})) / 2) ^ 2 
-                            + cos(radians({latitude})) * cos(radians(a.Latitude)) * sin((radians(a.Longitude) - radians({longitude})) / 2) ^ 2)) as Distance
+                    select  %(earthRadius)s * 2 * asin(sqrt(sin((radians(a.Latitude) - radians(%(latitude)s)) / 2) ^ 2 
+                            + cos(radians(%(latitude)s)) * cos(radians(a.Latitude)) * sin((radians(a.Longitude) - radians(%(longitude)s)) / 2) ^ 2)) as Distance
                 ) d
                     on true
             """
 
             try:
-                float(radius)
+                radius = float(radius)
             except ValueError as e:
-                raise ValueError(f"Radius count is not a valid number.")
+                raise ValueError(f"Radius is not a valid number.")
 
             whereClause += f"and (a.Latitude is not null) "
             whereClause += f"and (a.Longitude is not null) "
             whereClause += f"and (a.AreaId != 112166257) " # Filter out generic area
 
+            queryParameters["radius"] = radius
             if greaterThan:
-                whereClause += f"and (d.Distance >= {radius}) "
+                whereClause += f"and (d.Distance >= %(radius)s) "
             else:
-                whereClause += f"and (d.Distance <= {radius}) "
+                whereClause += f"and (d.Distance <= %(radius)s) "
 
-        return joinClause, whereClause
+        return joinClause, whereClause, queryParameters
 
     def validateKeywordArgs(self, **kwargs) -> None:
         """
@@ -769,7 +786,7 @@ class RoutePipeline(object):
         """
         self.validateKeywordArgs(**kwargs)
 
-        joinClause, whereClause = self.processFilters(**kwargs)
+        joinClause, whereClause, queryParameters = self.processFilters(**kwargs)
 
         parentAreaName = kwargs["parentAreaName"] if "parentareaname" in {key.lower() for key in kwargs.keys()} else None
 
@@ -830,11 +847,12 @@ class RoutePipeline(object):
                 order by r.RouteId;
             """
         else:
+            queryParameters["parentAreaName"] = f"%{parentAreaName.lower()}%"
             query = f"""
             ; with recursive SubAreas as (
                 select AreaId
                     from Areas
-                    where lower(AreaName) like '%{parentAreaName.lower()}%'
+                    where lower(AreaName) like %(parentAreaName)s
                 union all
                 select a.AreaId
                     from Areas a
@@ -897,9 +915,9 @@ class RoutePipeline(object):
                     a0.URL
                 order by r.RouteId;
             """
-        # print(query)
 
-        self.cursor.execute(query)
+        self.cursor.execute(query, queryParameters)
+        print(self.cursor.query.decode())
 
         results = self.cursor.fetchall()
 
@@ -959,7 +977,7 @@ class RoutePipeline(object):
         """
         self.validateKeywordArgs(**kwargs)
 
-        joinClause, whereClause = self.processFilters(**kwargs)
+        joinClause, whereClause, queryParameters = self.processFilters(**kwargs)
 
         parentAreaName = kwargs["parentAreaName"] if "parentareaname" in {key.lower() for key in kwargs.keys()} else None
 
@@ -984,11 +1002,12 @@ class RoutePipeline(object):
                     rr.RatingId;
             """
         else:
+            queryParameters["parentAreaName"] = f"%%{parentAreaName.lower()}%%"
             query = f"""
             ; with recursive SubAreas as (
                 select AreaId
                     from Areas
-                    where lower(AreaName) like '%{parentAreaName.lower()}%'
+                    where lower(AreaName) like %(parentAreaName)s
                 union all
                 select a.AreaId
                     from Areas a
@@ -1015,9 +1034,9 @@ class RoutePipeline(object):
                     rr.Rating,
                     rr.RatingId;
             """
-        # print(query)
 
-        self.cursor.execute(query)
+        self.cursor.execute(query, queryParameters)
+        # print(self.cursor.query.decode())
 
         results = self.cursor.fetchall()
 
@@ -1032,21 +1051,22 @@ class RoutePipeline(object):
         return [{fields[idx] : record[idx] for idx in range(fieldCount)} for record in results]
 
     def fetchUserRoutes(self, userId: int):
+        queryParameters = {"userId": userId}
         query = f"""
         select distinct RouteId
             from RouteTicks
-            where UserId = {userId}
+            where UserId = %(userId)s
         union
         select distinct RouteId
             from RouteRatings
-            where UserId = {userId}
+            where UserId = %(userId)s
         union
         select distinct RouteId
             from RouteToDos
-            where UserId = {userId}
+            where UserId = %(userId)s
         """
 
-        self.cursor.execute(query)
+        self.cursor.execute(query, queryParameters)
         routeIds = self.cursor.fetchall()
 
         return [{"RouteId": routeId[0]} for routeId in routeIds]
@@ -1064,27 +1084,28 @@ if __name__ == "__main__":
         geopyUsername="zsnyder21"
     )
 
-    # routes = pipe.fetchRouteRatings(
-    #     # city="Boulder",
-    #     # state="Colorado",
-    #     # radius=30,
-    #     # severityThreshold="PG13",
-    #     # routeDifficultyLow="5.5",
-    #     # routeDifficultyHigh="5.8",
-    #     # type="Top Rope",
-    #     # elevation="5000+",
-    #     # parentAreaName="Eldorado Canyon SP"
-    #     routeDifficultyLow="5.8",
-    #     routeDifficultyHigh="5.12a",
-    #     type="Sport, Trad",
-    #     parentAreaName="Yosemite National Park",
-    #     # voteCount="20+",
-    #     # averageRating="3.2+"
-    # )
+    routes = pipe.fetchRouteRatings(
+        # city="Boulder",
+        # state="Colorado",
+        radius=30,
+        proximityRoute=r"https://www.mountainproject.com/area/105807692/redgarden-s-buttress",
+        severityThreshold="PG13",
+        # routeDifficultyLow="5.5",
+        # routeDifficultyHigh="5.8",
+        # type="Top Rope",
+        elevation="5000+",
+        parentAreaName="Eldorado Canyon SP",
+        routeDifficultyLow="5.8",
+        routeDifficultyHigh="5.12a",
+        type="Sport, Trad",
+        # parentAreaName="Yosemite National Park",
+        voteCount="20+",
+        averageRating="3.2+"
+    )
 
     # route = pipe.fetchRouteByURL(routeURL=r"https://www.mountainproject.com/route/105924807/the-nose")
     # print(route)
-
+    print(routes)
     # for route in routes:
     #     print(route["RouteName"])
     #     print(" Difficulty:", route["Difficulty_YDS"], route["Difficulty_ADL"])
@@ -1092,10 +1113,10 @@ if __name__ == "__main__":
     #     print(" Height:", f"{route['Height']}ft" if route["Height"] is not None else "Not specified")
     #     print(" Pithces:", route["Pitches"] or 1)
     #     print(" Severity:", route["Severity"])
-    #     print(" URL:", route["URL"])
-    #     # print(" Description:", route["Description"])
-    #     # print(" Comments:", route["Comments"])
-    #     print()
+    #     print(" URL:", route["RouteURL"])
+        # print(" Description:", route["Description"])
+        # print(" Comments:", route["Comments"])
+        # print()
 
     # print(len(routes))
     # for rating in routes:
@@ -1104,12 +1125,13 @@ if __name__ == "__main__":
     #     print(rating["Rating"])
     #     print()
 
-    routesToRecommend = pipe.fetchRoutes(
-        # routeDifficultyLow="5.8",
-        # routeDifficultyHigh="5.12a",
-        # type="Sport, Trad",
-        parentAreaName="Cob Rock",
-        voteCount="20+"
-    )
+    # routesToRecommend = pipe.fetchRoutes(
+    #     # routeDifficultyLow="5.8",
+    #     # routeDifficultyHigh="5.12a",
+    #     # type="Sport, Trad",
+    #     parentAreaName="Cob Rock",
+    #     voteCount="20+"
+    # )
+    # routesToRecommend = pipe.fetchRoutesByArea("Cob Rock")
 
-    print(routesToRecommend[0])
+    # print(routesToRecommend)
