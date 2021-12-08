@@ -189,6 +189,18 @@ def displayFilteredRoutes():
                                ratingSystems=difficultySystemValues,
                                errorMessage="Please enter required filtering criteria.")
 
+    if "city" in parameters and "state" in parameters and not pipe.geoAgent.geocode(query=", ".join([city, state]),
+                                                                                    exactly_one=True):
+        title = "Search Routes"
+        difficultySystemValues = pipe.fetchRatingSystemDifficulties()
+        difficultySystemValues[""] = []
+
+        return render_template("select-routes.html",
+                               title=title,
+                               ratingSystems=difficultySystemValues,
+                               errorMessage="Ensure that the city and state are correct."
+                               )
+
     routes = pipe.fetchRoutes(**parameters)
 
     return render_template(
@@ -337,6 +349,18 @@ def displayTextuallySimilarRoutes():
                                ratingSystems=difficultySystemValues,
                                errorMessage="Please enter required filtering criteria.")
 
+    if "city" in parameters and "state" in parameters and not pipe.geoAgent.geocode(query=", ".join([city, state]),
+                                                                                    exactly_one=True):
+        title = "Search Routes"
+        difficultySystemValues = pipe.fetchRatingSystemDifficulties()
+        difficultySystemValues[""] = []
+
+        return render_template("textual-similarity.html",
+                               title=title,
+                               ratingSystems=difficultySystemValues,
+                               errorMessage="Ensure that the city and state are correct."
+                               )
+
     keywordRecommender.similarityMatrix = None
     keywordRecommender.fetchRoutesToRecommend(**parameters)
 
@@ -482,6 +506,18 @@ def displayUserSimilarRoutes():
                                title=title,
                                ratingSystems=difficultySystemValues,
                                errorMessage="Please enter required filtering criteria.")
+
+    if "city" in parameters and "state" in parameters and not pipe.geoAgent.geocode(query=", ".join([city, state]),
+                                                                                    exactly_one=True):
+        title = "Search Routes"
+        difficultySystemValues = pipe.fetchRatingSystemDifficulties()
+        difficultySystemValues[""] = []
+
+        return render_template("user-similarity.html",
+                               title=title,
+                               ratingSystems=difficultySystemValues,
+                               errorMessage="Ensure that the city and state are correct."
+                               )
 
     routes = userRecommender.recommendRoutes(
         n=20,
@@ -632,6 +668,18 @@ def displayItemSimilarRoutes():
                                title=title,
                                ratingSystems=difficultySystemValues,
                                errorMessage="Please enter some filtering criteria.")
+
+    if "city" in parameters and "state" in parameters and not pipe.geoAgent.geocode(query=", ".join([city, state]),
+                                                                                    exactly_one=True):
+        title = "Search Routes"
+        difficultySystemValues = pipe.fetchRatingSystemDifficulties()
+        difficultySystemValues[""] = []
+
+        return render_template("item-similarity.html",
+                               title=title,
+                               ratingSystems=difficultySystemValues,
+                               errorMessage="Ensure that the city and state are correct."
+                               )
 
     routes = routeSimilarityRecommender.recommendRoutes(
         n=20,
