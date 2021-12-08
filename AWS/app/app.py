@@ -15,8 +15,8 @@ load_dotenv()
 app = Flask(__name__)
 
 pipe = RoutePipeline(
-    username=os.getenv("POSTGRESQL_USERNAME"),
-    password=os.getenv("POSTGRESQL_PASSWORD"),
+    username=os.getenv("REMOTE_GUEST_POSTGRESQL_USERNAME"),
+    password=os.getenv("REMOTE_GUEST_POSTGRESQL_PASSWORD"),
     host=os.getenv("POSTGRESQL_HOST"),
     port=os.getenv("POSTGRESQL_PORT"),
     database=os.getenv("POSTGRESQL_DATABASE"),
@@ -24,8 +24,8 @@ pipe = RoutePipeline(
 )
 
 keywordRecommender = RouteContentRecommender(
-    username=os.getenv("POSTGRESQL_USERNAME"),
-    password=os.getenv("POSTGRESQL_PASSWORD"),
+    username=os.getenv("REMOTE_GUEST_POSTGRESQL_USERNAME"),
+    password=os.getenv("REMOTE_GUEST_POSTGRESQL_PASSWORD"),
     host=os.getenv("POSTGRESQL_HOST"),
     port=os.getenv("POSTGRESQL_PORT"),
     database=os.getenv("POSTGRESQL_DATABASE"),
