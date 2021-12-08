@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Climbing Route Recommender{% endblock %}
+
+{% block content %}
+
+<style>
+   body{
+     background-image:url('../static/img/Plumbers-Crack.jpg');
+     width:100%;
+
+    background-size: cover;
+   }
+
+   @media only screen and (max-width: 600px) {
+       body {
+           background-size: auto;
+       }
+   }
+
+
+
+.main {
+  background-color: rgba(255, 255, 255, 0.5);
+  margin-top: 100px;
+  padding-bottom: 50px;
+}
+.main h1 {
+  font-size: 5em;
+}
+.main h2 {
+  font-size:3em;
+}
+.main h3 {
+  font-size:2em;
+}
+.main p {
+  font-size:2em;
+}
+
+</style>
+
+<div class="overlay"/>
+
+  <div class="main">
+    <div class="starter-template">
+      <div class="container">
+        <br/>
+        <h3>Feel free to reach out via any of the channels below!</h3>
+        <ul>
+          <li>
+            <a href="https://www.linkedin.com/in/zsnyder21/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+          </li>
+          <li>
+            <a href="https://github.com/zsnyder21" target="_blank" rel="noopener noreferrer">GitHub</a>
+          </li>
+          <li>
+            <a href="mailto:zsnyder21@gmail.com" target="_blank" rel="noopener noreferrer">zsnyder21@gmail.com</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+{% endblock %}

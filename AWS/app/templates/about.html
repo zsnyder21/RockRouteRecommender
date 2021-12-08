@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}About the Route Recommender{% endblock %}
+{% block content %}
+
+<style>
+   body{
+     background-image:url('../static/img/Scarface.jpg');
+     width:100%;
+
+    background-size: cover;
+   }
+
+   @media only screen and (max-width: 600px) {
+       body {
+           background-size: auto;
+       }
+   }
+
+
+
+.main {
+  background-color: rgba(255, 255, 255, 0.5);
+  margin-top: 100px;
+  padding-bottom: 50px;
+}
+.main h1 {
+  font-size: 5em;
+}
+.main h2 {
+  font-size:3em;
+}
+.main h3 {
+  font-size:2em;
+}
+.main p {
+  font-size:2em;
+}
+
+
+</style>
+
+
+
+
+
+<div class="overlay"/>
+
+<div class="main">
+  <div class="starter-template">
+    <div class="container">
+      <h2>General Information</h2>
+
+      <p>
+        Do you hate reading through guidebooks to find things to climb? Then you've come to the right place!
+      </p>
+
+      <br/>
+
+      <p>
+        Here you can search for routes by a variety of filtering criteria. In addition you can also have them
+        recommended to you based on textual similarity of climbing keywords, user similarity where routes are
+        recommended to you based off of the routes you have previously rated, or item similarity where routes are
+        recommended because users who climbed route X also climbed route Y.
+      </p>
+
+      <br/>
+
+      <p>
+        Note that when interacting with the search and recommendation utilities that the broader your search criteria are,
+        the longer it will take to return your results. This is especially true of the user similarity recommender.
+      </p>
+
+      <br/>
+
+      <p>
+        Finally, when using the recommendation utilities, the only strictly required field is the first one on each page.
+        Without that information the recommenders cannot function as it will have nothing to recommend based off of. You
+        are forced to enter some filtering criteria, however, to limit database query times.
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}
