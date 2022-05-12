@@ -844,7 +844,8 @@ class RoutePipeline(object):
                     r.URL,
                     a0.AreaName,
                     a0.URL
-                order by r.RouteId;
+                order by a0.AreaName,
+                    r.RouteName;
             """
         else:
             queryParameters["parentAreaName"] = f"%{parentAreaName.lower()}%"
@@ -913,7 +914,8 @@ class RoutePipeline(object):
                     r.URL,
                     a0.AreaName,
                     a0.URL
-                order by r.RouteId;
+                order by a0.AreaName,
+                    r.RouteName;
             """
 
         self.cursor.execute(query, queryParameters)
