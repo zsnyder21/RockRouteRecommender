@@ -17,18 +17,18 @@ app = Flask(__name__)
 pipe = RoutePipeline(
     username=os.getenv("REMOTE_GUEST_POSTGRESQL_USERNAME"),
     password=os.getenv("REMOTE_GUEST_POSTGRESQL_PASSWORD"),
-    host=os.getenv("POSTGRESQL_HOST"),
-    port=os.getenv("POSTGRESQL_PORT"),
-    database=os.getenv("POSTGRESQL_DATABASE"),
+    host=os.getenv("POSTGRESQL_HOST"),  # If running from local, this needs to be the remote address
+    port=os.getenv("REMOTE_POSTGRESQL_PORT"),
+    database=os.getenv("REMOTE_POSTGRESQL_DATABASE"),
     geopyUsername=os.getenv("GEOPY_USERAGENT")
 )
 
 keywordRecommender = RouteContentRecommender(
     username=os.getenv("REMOTE_GUEST_POSTGRESQL_USERNAME"),
     password=os.getenv("REMOTE_GUEST_POSTGRESQL_PASSWORD"),
-    host=os.getenv("POSTGRESQL_HOST"),
-    port=os.getenv("POSTGRESQL_PORT"),
-    database=os.getenv("POSTGRESQL_DATABASE"),
+    host=os.getenv("POSTGRESQL_HOST"),  # If running from local, this needs to be the remote address
+    port=os.getenv("REMOTE_POSTGRESQL_PORT"),
+    database=os.getenv("REMOTE_POSTGRESQL_DATABASE"),
     geopyUsername=os.getenv("GEOPY_USERAGENT")
 )
 
