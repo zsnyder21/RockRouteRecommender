@@ -242,7 +242,7 @@ class SparkALSModel(object):
         routesToRecommend = routesToRecommend.merge(recommendations[["RouteId", "prediction"]], on="RouteId", how="inner")
         recommendationIdxs = routesToRecommend["prediction"].values.argsort()
 
-        return routesToRecommend.iloc[recommendationIdxs[-1:-n:-1]]
+        return routesToRecommend.iloc[recommendationIdxs[-1:-n-1:-1]]
 
 
 def main():
