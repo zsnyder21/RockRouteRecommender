@@ -17,8 +17,8 @@
   * [Application](#application)
   * [Conclusions](#conclusions)
   * [Future Work](#future-work)
+  
 
-This is a test
 ## Motivation
 There are many factors to consider when looking for a climb including but not limited to type, difficulty, height,
 number of pitches, and quality. Finding a new climb can be a challenge in its own right. Combing through guidebooks
