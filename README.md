@@ -118,6 +118,9 @@ tool was created that (in my opinion) far surpasses the functionality present on
 capabilities that this pipeline posesses allows for far more control over what routes you are searching for.
 
 ## Application
+The application is currently not live. I will get it back up and running when I can find the time to create/setup
+everything on a new AWS instance.
+
 I took the text similarity system and search engine and deployed them via a Flask application.
 You can interact with it
 <a href="http://3.136.157.114:8080/" target="_blank" rel="noopener noreferrer">here</a> provided it's running
